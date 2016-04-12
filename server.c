@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include <gmp.h>
 
@@ -15,17 +16,19 @@
 #define DUMPFILE "dump"
 #endif
 
-void server(size_t dbsize, const mpz_t prime, size_t minvp,
+#define SERIAL_VERSION 1
+#ifndef VERSION
+#define VERSION SERIAL_VERSION
+#endif
+
+#if VERSION == SERIAL_VERSION
+static void server_serial_impl(const mpz_t prime, size_t minvp,
 		size_t inplen, const mpz_t * const inp,
 		size_t outlen, mpz_t *out)
 {
-	double total_time, time_per_mul, time_per_round, mmps;
-	struct timeval st, en;
 	size_t i, j;
 
 	(void) minvp;
-
-	gettimeofday(&st, NULL);
 	for (i = 0; i < outlen; i++) {
 		mpz_init_set_ui(out[i], 1);
 		for (j = 0; j < inplen; j++) {
@@ -33,6 +36,20 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 			mpz_mod(out[i], out[i], prime);
 		}
 	}
+}
+#endif
+
+void server(size_t dbsize, const mpz_t prime, size_t minvp,
+		size_t inplen, const mpz_t * const inp,
+		size_t outlen, mpz_t *out)
+{
+	double total_time, time_per_mul, time_per_round, mmps;
+	struct timeval st, en;
+
+	gettimeofday(&st, NULL);
+#if VERSION == SERIAL_VERSION
+	server_serial_impl(prime, minvp, inplen, inp, outlen, out);
+#endif
 	gettimeofday(&en, NULL);
 
 	total_time = 1000 * time_diff(&st, &en); /* in ms */
