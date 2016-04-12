@@ -6,6 +6,10 @@
 
 #include "client.h"
 
+#ifndef BASE
+#define BASE 10
+#endif
+
 static char* get_query_numbers_filename(size_t keysize)
 {
 	char *fname = NULL;
@@ -37,12 +41,12 @@ static int try_read(const char* fname, size_t keysize, size_t query_length,
 
 	read++;
 	mpz_init(prime);
-	if (!mpz_inp_str(prime, f, 10))
+	if (!mpz_inp_str(prime, f, BASE))
 		goto end;
 	fscanf(f, "%lu", minvp);
 
 	for (i = 0; i < query_length; i++, read++) {
-		if (!mpz_inp_str(numbers[i], f, 10))
+		if (!mpz_inp_str(numbers[i], f, BASE))
 			goto end;
 	}
 
@@ -62,12 +66,12 @@ static void write_back(const char* fname, size_t keysize, size_t query_length,
 		return; /* silently leave */
 
 	fprintf(f, "%lu\n", keysize);
-	mpz_out_str(f, 10, prime);
+	mpz_out_str(f, BASE, prime);
 	fprintf(f, "\n");
 	fprintf(f, "%lu\n", minvp);
 
 	for (i = 0; i < query_length; i++) {
-		mpz_out_str(f, 10, numbers[i]);
+		mpz_out_str(f, BASE, numbers[i]);
 		fprintf(f, "\n");
 	}
 

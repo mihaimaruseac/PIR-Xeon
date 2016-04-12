@@ -102,6 +102,7 @@ int main(int argc, char **argv)
 	get_client_query((size_t)args.keysize, (size_t)args.query_length,
 			state, prime, &minvp, numbers);
 	server(prime, minvp, args.query_length, numbers, num_outputs, results);
+	dump_results(num_outputs, results);
 
 	for (i = 0; i < args.query_length; i++)
 		mpz_clear(numbers[i]);
