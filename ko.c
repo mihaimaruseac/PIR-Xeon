@@ -8,6 +8,10 @@
 #include "globals.h"
 #include "server.h"
 
+#ifndef DEBUG_RESULTS
+#define DEBUG_RESULTS 0
+#endif
+
 /* default key size: 1024 bits */
 #define KEYDEFAULT 1024
 
@@ -102,7 +106,10 @@ int main(int argc, char **argv)
 	get_client_query((size_t)args.keysize, (size_t)args.query_length,
 			state, prime, &minvp, numbers);
 	server(prime, minvp, args.query_length, numbers, num_outputs, results);
+
+#if DEBUG_RESULTS
 	dump_results(num_outputs, results);
+#endif
 
 	for (i = 0; i < args.query_length; i++)
 		mpz_clear(numbers[i]);
