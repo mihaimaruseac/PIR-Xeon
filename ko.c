@@ -6,6 +6,7 @@
 
 #include "client.h"
 #include "globals.h"
+#include "server.h"
 
 /* default key size: 1024 bits */
 #define KEYDEFAULT 1024
@@ -77,9 +78,9 @@ static void parse_arguments(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+	mpz_t prime, *numbers, *results;
+	size_t minvp, num_outputs, j;
 	gmp_randstate_t state;
-	mpz_t prime, *numbers;
-	size_t minvp;
 	int i;
 
 	parse_arguments(argc, argv);
@@ -90,16 +91,28 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 
+	num_outputs = args.db_size / args.query_length;
+	results = calloc(num_outputs, sizeof(results[0]));
+	if (!numbers) {
+		fprintf(stderr, "Cannot allocate memory for server results!\n");
+		exit(EXIT_FAILURE);
+	}
+
 	initialize_random(state, args.db_size);
 	get_client_query((size_t)args.keysize, (size_t)args.query_length,
 			state, prime, &minvp, numbers);
+	server(prime, minvp, args.query_length, numbers, num_outputs, results);
 
 	for (i = 0; i < args.query_length; i++)
 		mpz_clear(numbers[i]);
 
+	for (j = 0; j < num_outputs; j++)
+		mpz_clear(results[j]);
+
 	gmp_randclear(state);
 	mpz_clear(prime);
 	free(numbers);
+	free(results);
 
 	exit(EXIT_SUCCESS);
 }

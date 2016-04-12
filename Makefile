@@ -3,7 +3,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -g -O0
 LDFLAGS = -lgmp
-OBJS = globals.o client.o
+OBJS = globals.o client.o server.o
 TARGET = ./ko
 
 all: $(TARGET)
