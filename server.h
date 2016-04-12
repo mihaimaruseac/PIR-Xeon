@@ -3,7 +3,7 @@
 
 struct mpz_t;
 
-void server(const mpz_t prime, size_t minvp,
+void server(size_t dbsize, const mpz_t prime, size_t minvp,
 		size_t inplen, const mpz_t * const inp,
 		size_t outlen, mpz_t *out);
 

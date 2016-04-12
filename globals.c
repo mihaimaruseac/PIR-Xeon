@@ -1,6 +1,7 @@
 #include <gmp.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "globals.h"
 
@@ -38,3 +39,12 @@ void initialize_random(gmp_randstate_t state, int bytes)
 	mpz_clear(s);
 	free(buff);
 }
+
+#define MICROSECONDS 1000000.0
+double time_diff(const struct timeval *st, const struct timeval *en)
+{
+	double t1 = st->tv_sec + st->tv_usec / MICROSECONDS;
+	double t2 = en->tv_sec + en->tv_usec / MICROSECONDS;
+	return t2 - t1;
+}
+#undef MICROSECONDS
