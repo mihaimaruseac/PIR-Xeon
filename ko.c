@@ -36,6 +36,9 @@ static void usage(const char *prg)
 	fprintf(stderr, "\t-n sz\tsize of the database (in bits)\n");
 	fprintf(stderr, "\t-k ops\tnumber of operands in query from user\n");
 	fprintf(stderr, "\t-m keysize (default %d\n", KEYDEFAULT);
+	fprintf(stderr, "\n");
+	fprintf(stderr, "CONSTRAINTS:\n");
+	fprintf(stderr, "\tsz is a multiple of ops\n");
 	exit(EXIT_FAILURE);
 }
 
@@ -76,6 +79,11 @@ static void parse_arguments(int argc, char **argv)
 
 	if (args.db_size < 0 || args.query_length < 0) {
 		fprintf(stderr, "Missing/Invalid -n or -k value\n");
+		usage(argv[0]);
+	}
+
+	if (args.db_size % args.query_length != 0) {
+		fprintf(stderr, "Database size is not multiple of ops\n");
 		usage(argv[0]);
 	}
 }
