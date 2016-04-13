@@ -113,6 +113,8 @@ int main(int argc, char **argv)
 	initialize_random(state, args.db_size);
 	get_client_query((size_t)args.keysize, (size_t)args.query_length,
 			state, prime, &minvp, numbers);
+	printf("%d %d %d\n", mp_bits_per_limb, mpz_size(prime), args.keysize / mp_bits_per_limb);
+
 	server(args.db_size, prime, minvp, args.query_length, numbers,
 			num_outputs, results);
 
