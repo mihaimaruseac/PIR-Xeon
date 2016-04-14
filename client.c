@@ -132,7 +132,7 @@ void get_client_query(size_t keysize, size_t query_length,
 
 	if (need_write)
 		write_back(fname, keysize, query_length,
-				prime, *minvp, numbers);
+				prime, *minvp, (const mpz_t *)numbers);
 
 	free(fname);
 }
