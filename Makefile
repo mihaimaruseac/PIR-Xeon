@@ -2,7 +2,6 @@
 
 REMOTE_TYPES = xeon mic
 COMPILE_TYPES = local $(REMOTE_TYPES)
-COMPILE_TYPE = # set it to one from $(COMPILE_TYPES)
 
 CFLAGS = -Wall -Wextra -g -O0
 
