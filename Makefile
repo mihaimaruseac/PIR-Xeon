@@ -3,7 +3,7 @@
 REMOTE_TYPES = xeon mic
 COMPILE_TYPES = local $(REMOTE_TYPES)
 
-CFLAGS = -Wall -Wextra -g -O0
+CFLAGS = -Wall -Wextra -g -O0 -fopenmp
 
 ifneq ($(MAKECMDGOALS), clean)
   # if the value of $(COMPILE_TYPE) is not in $(COMPILE_TYPES)
