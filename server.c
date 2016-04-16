@@ -16,13 +16,7 @@
 #define DUMPFILE "dump"
 #endif
 
-#define SERIAL_VERSION 1
-#ifndef VERSION
-#define VERSION SERIAL_VERSION
-#endif
-
-#if VERSION == SERIAL_VERSION
-static void server_serial_impl(const mpz_t prime, size_t minvp,
+static void naive_impl(const mpz_t prime, size_t minvp,
 		size_t inplen, const mpz_t * const inp,
 		size_t outlen, mpz_t *out)
 {
@@ -37,7 +31,6 @@ static void server_serial_impl(const mpz_t prime, size_t minvp,
 		}
 	}
 }
-#endif
 
 void server(size_t dbsize, const mpz_t prime, size_t minvp,
 		size_t inplen, const mpz_t * const inp,
@@ -47,9 +40,7 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 	struct timeval st, en;
 
 	gettimeofday(&st, NULL);
-#if VERSION == SERIAL_VERSION
-	server_serial_impl(prime, minvp, inplen, inp, outlen, out);
-#endif
+	naive_impl(prime, minvp, inplen, inp, outlen, out);
 	gettimeofday(&en, NULL);
 
 	total_time = 1000 * time_diff(&st, &en); /* in ms */
