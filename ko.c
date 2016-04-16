@@ -117,12 +117,6 @@ int main(int argc, char **argv)
 	get_client_query((size_t)args.keysize, (size_t)args.query_length,
 			state, prime, &minvp, numbers);
 	printf("%d %lu %d\n", mp_bits_per_limb, mpz_size(prime), args.keysize / mp_bits_per_limb);
-	printf("Cilk %d workers\n", __cilkrts_get_nworkers());
-#pragma omp parallel
-	{
-		if (omp_get_thread_num() == 0)
-			printf("OpenMP %d threads\n", omp_get_num_threads());
-	}
 
 	server(args.db_size, prime, minvp, args.query_length,
 			(const mpz_t *)numbers, num_outputs, results);
