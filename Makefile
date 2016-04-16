@@ -1,18 +1,9 @@
-# Vars to define on command line:
-# 	COMPILE_TARGET=...: specify compilation target, REQUIRED
-# 	VALIDATE: dumps the result of the multiplication to validate transform
-
 .PHONY: all clean
 
 REMOTE_TARGETS = xeon mic
 COMPILE_TARGETS = local $(REMOTE_TARGETS)
 
-CFLAGS = -Wall -Wextra -O3 #-g -O0
-
-# dump results if $(VALIDATE) is yes or 1
-ifneq (, $(filter $(VALIDATE), yes 1))
-  CFLAGS := $(CFLAGS) -DDEBUG_RESULTS
-endif
+CFLAGS += -Wall -Wextra -O3 #-g -O0
 
 ifneq ($(MAKECMDGOALS), clean)
   # if the value of $(COMPILE_TARGET) is not in $(COMPILE_TARGETS)
