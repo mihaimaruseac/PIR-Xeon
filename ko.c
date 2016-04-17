@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 			(const mpz_t *)numbers, num_outputs, results);
 
 #if DEBUG_RESULTS
-	dump_results(num_outputs, results);
+	dump_results(num_outputs, (const mpz_t *)results);
 #endif
 
 	for (i = 0; i < args.query_length; i++)
