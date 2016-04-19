@@ -4,9 +4,6 @@
 
 #include <gmp.h>
 
-#include <cilk/cilk.h>
-#include <omp.h>
-
 #include "client.h"
 #include "globals.h"
 #include "server.h"
