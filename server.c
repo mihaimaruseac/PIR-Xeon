@@ -5,6 +5,10 @@
 
 #include <gmp.h>
 
+#ifdef HAVEOMP
+#include <omp.h>
+#endif
+
 #include "globals.h"
 #include "server.h"
 
@@ -23,7 +27,9 @@ static void naive_impl(const mpz_t prime, size_t minvp,
 	size_t i, j;
 
 	(void) minvp;
+#ifdef HAVEOMP
 #pragma omp parallel for
+#endif
 	for (i = 0; i < outlen; i++) {
 		mpz_init_set_ui(out[i], 1);
 		for (j = 0; j < inplen; j++) {
