@@ -20,6 +20,54 @@
 #define DUMPFILE "dump"
 #endif
 
+#ifdef LLIMPL
+static void low_level_work_kernel(const mp_limb_t *prime, mp_size_t numlen,
+		size_t minvp, size_t inplen, const mp_limb_t * const * inp,
+		size_t outlen, mp_limb_t **out)
+{
+	size_t i, j, sz = 2 * numlen;
+	mp_limb_t* scratch = calloc(sz, sizeof(scratch[0]));
+	mp_limb_t* quot = calloc(sz, sizeof(scratch[0]));
+
+	(void) minvp;
+	for (i = 0; i < outlen; i++) {
+		for (j = 0; j < inplen; j++) {
+			mpn_mul_n(scratch, out[i], inp[j], numlen);
+			mpn_tdiv_qr(quot, out[i], 0, scratch, sz, prime, numlen);
+		}
+	}
+
+	free(scratch);
+	free(quot);
+}
+
+static void low_level_impl(const mpz_t prime, size_t minvp,
+		size_t inplen, const mpz_t * const inp,
+		size_t outlen, mpz_t *out)
+{
+	size_t i, sz = mpz_size(prime);
+
+	const mp_limb_t** inputs = calloc(inplen, sizeof(inputs[0]));
+	for (i = 0; i< inplen; i++)
+		inputs[i] = mpz_limbs_read(inp[i]);
+
+	mp_limb_t** outputs = calloc(outlen, sizeof(outputs[0]));
+	for (i = 0; i < outlen; i++)
+		outputs[i] = mpz_limbs_modify(out[i], sz);
+
+	low_level_work_kernel(mpz_limbs_read(prime), sz,
+			minvp, inplen, inputs,
+			outlen, outputs);
+
+	for (i = 0; i < outlen; i++)
+		mpz_limbs_finish(out[i], sz);
+
+	free(outputs);
+	free(inputs);
+}
+
+#else
+
 static void naive_impl(const mpz_t prime, size_t minvp,
 		size_t inplen, const mpz_t * const inp,
 		size_t outlen, mpz_t *out)
@@ -39,6 +87,8 @@ static void naive_impl(const mpz_t prime, size_t minvp,
 	}
 }
 
+#endif
+
 void server(size_t dbsize, const mpz_t prime, size_t minvp,
 		size_t inplen, const mpz_t * const inp,
 		size_t outlen, mpz_t *out)
@@ -47,7 +97,13 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 	struct timeval st, en;
 
 	gettimeofday(&st, NULL);
+
+#ifdef LLIMPL
+	low_level_impl(prime, minvp, inplen, inp, outlen, out);
+#else
 	naive_impl(prime, minvp, inplen, inp, outlen, out);
+#endif
+
 	gettimeofday(&en, NULL);
 
 	total_time = 1000 * time_diff(&st, &en); /* in ms */

@@ -1,8 +1,10 @@
 ##
 # Vars:
 # - COMPILE_TARGET	(req)		specify target arch
+# - DEBUGDUMP		(def 0)		check results
 # - DEBUG		(def 0)		compile for debug/amplxe
 # - OMP			(def 1)		compile w/ OpenMP
+# - LLGNUMP		(def 0)		use low-level GNU MP routines
 ##
 
 .PHONY: all clean
@@ -12,11 +14,22 @@ COMPILE_TARGETS = local $(REMOTE_TARGETS)
 
 CFLAGS += -Wall -Wextra
 
-# optimize only if DEBUG is neither yes nor 1
+# optimize only if DEBUG is either yes or 1
 ifneq (, $(filter $(DEBUG), yes 1))
   CFLAGS := $(CFLAGS) -g -O0
 else
   CFLAGS := $(CFLAGS) -O3
+endif
+
+# dump results from server (for checking) if DEBUGDUMP is either yes or 1
+ifneq (, $(filter $(DEBUGDUMP), yes 1))
+  CFLAGS := $(CFLAGS) -DDEBUG_RESULTS=1
+endif
+
+# low-level GNU MP only if LLGNUMP is either yes or 1
+ifneq (, $(filter $(LLGNUMP), yes 1))
+  $(warning This code is not perfect, fails to compute proper result)
+  CFLAGS := $(CFLAGS) -DLLIMPL
 endif
 
 ifneq ($(MAKECMDGOALS), clean)
