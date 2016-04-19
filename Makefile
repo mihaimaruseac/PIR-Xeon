@@ -3,7 +3,14 @@
 REMOTE_TARGETS = xeon mic
 COMPILE_TARGETS = local $(REMOTE_TARGETS)
 
-CFLAGS += -Wall -Wextra -O3 #-g -O0
+CFLAGS += -Wall -Wextra
+
+# optimize only if DEBUG is neither yes nor 1
+ifneq (, $(filter $(DEBUG), yes 1))
+  CFLAGS := $(CFLAGS) -g -O0
+else
+  CFLAGS := $(CFLAGS) -O3
+endif
 
 ifneq ($(MAKECMDGOALS), clean)
   # if the value of $(COMPILE_TARGET) is not in $(COMPILE_TARGETS)
