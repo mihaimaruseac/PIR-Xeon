@@ -1,2 +1,8 @@
 *.o
 ko
+client.optrpt
+globals.optrpt
+ipo_out.optrpt
+ko.optrpt
+server.optrpt
+test
