@@ -24,7 +24,13 @@ ifneq ($(MAKECMDGOALS), clean)
   else
     CC = icc
     LD = icc
-    CFLAGS := $(CFLAGS) -DHAVEOMP -fopenmp -qopt-report=4 -qopt-report-phase ipo
+
+    # skip OpenMP if OMP is no or 0
+    ifneq (, $(filter $(OMP), no 0))
+    else
+      CFLAGS := $(CFLAGS) -DHAVEOMP -fopenmp -qopt-report=4 -qopt-report-phase ipo
+    endif
+
     CFLAGS := $(CFLAGS) -I /usr/manual_install/gmp-6.0.0/build/$(COMPILE_TARGET)/include
     LDLIBS = /usr/manual_install/gmp-6.0.0/build/$(COMPILE_TARGET)/lib/libgmp.a
     ifeq ($(COMPILE_TARGET), mic)
