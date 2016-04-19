@@ -1,3 +1,10 @@
+##
+# Vars:
+# - COMPILE_TARGET	(req)		specify target arch
+# - DEBUG		(def 0)		compile for debug/amplxe
+# - OMP			(def 1)		compile w/ OpenMP
+##
+
 .PHONY: all clean
 
 REMOTE_TARGETS = xeon mic
