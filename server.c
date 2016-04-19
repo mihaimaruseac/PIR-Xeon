@@ -23,6 +23,7 @@ static void naive_impl(const mpz_t prime, size_t minvp,
 	size_t i, j;
 
 	(void) minvp;
+#pragma omp parallel for
 	for (i = 0; i < outlen; i++) {
 		mpz_init_set_ui(out[i], 1);
 		for (j = 0; j < inplen; j++) {

@@ -17,6 +17,7 @@ ifneq ($(MAKECMDGOALS), clean)
   else
     CC = icc
     LD = icc
+    CFLAGS := $(CFLAGS) -fopenmp -qopt-report=4 -qopt-report-phase ipo
     CFLAGS := $(CFLAGS) -I /usr/manual_install/gmp-6.0.0/build/$(COMPILE_TARGET)/include
     LDLIBS = /usr/manual_install/gmp-6.0.0/build/$(COMPILE_TARGET)/lib/libgmp.a
     ifeq ($(COMPILE_TARGET), mic)
