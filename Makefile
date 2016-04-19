@@ -5,6 +5,7 @@
 # - DEBUG		(def 0)		compile for debug/amplxe
 # - OMP			(def 1)		compile w/ OpenMP
 # - LLGNUMP		(def 0)		use low-level GNU MP routines
+# - CUDA		(def 0)		use CUDA code as baseline
 ##
 
 .PHONY: all clean
@@ -30,6 +31,11 @@ endif
 ifneq (, $(filter $(LLGNUMP), yes 1))
   $(warning This code is not perfect, fails to compute proper result)
   CFLAGS := $(CFLAGS) -DLLIMPL
+endif
+
+# use CUDA-based hand-written code only if CUDA is either yes or 1
+ifneq (, $(filter $(CUDA), yes 1))
+  CFLAGS := $(CFLAGS) -DCU_CODE
 endif
 
 ifneq ($(MAKECMDGOALS), clean)
