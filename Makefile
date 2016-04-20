@@ -10,6 +10,9 @@
 
 .PHONY: all clean
 
+OBJS = globals.o client.o server.o
+TARGET = ./ko
+
 REMOTE_TARGETS = xeon mic
 COMPILE_TARGETS = local $(REMOTE_TARGETS)
 
@@ -36,6 +39,7 @@ endif
 # use CUDA-based hand-written code only if CUDA is either yes or 1
 ifneq (, $(filter $(CUDA), yes 1))
   CFLAGS := $(CFLAGS) -DCU_CODE
+  OBJS := $(OBJS) integer-reg.o
 endif
 
 ifneq ($(MAKECMDGOALS), clean)
@@ -64,9 +68,6 @@ ifneq ($(MAKECMDGOALS), clean)
     endif
   endif
 endif
-
-OBJS = globals.o client.o server.o
-TARGET = ./ko
 
 all: $(TARGET)
 
