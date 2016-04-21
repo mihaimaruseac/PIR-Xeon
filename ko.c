@@ -90,6 +90,10 @@ static void parse_arguments(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
+#ifdef CU_CODE
+	//TODO: vars for uint* representation
+#endif
+
 	mpz_t prime, *numbers, *results;
 	size_t minvp, num_outputs, j;
 	gmp_randstate_t state;
@@ -105,7 +109,7 @@ int main(int argc, char **argv)
 
 	num_outputs = args.db_size / args.query_length;
 	results = calloc(num_outputs, sizeof(results[0]));
-	if (!numbers) {
+	if (!results) {
 		fprintf(stderr, "Cannot allocate memory for server results!\n");
 		exit(EXIT_FAILURE);
 	}
@@ -117,13 +121,16 @@ int main(int argc, char **argv)
 	printf("%lu %lu %lu %lu\n", sizeof(int), sizeof(long), sizeof(long long), sizeof(void*));
 
 #ifdef CU_CODE
-	//TODO
+	//TODO: convert to number_t (uint*) representation
 #else
 	server(args.db_size, prime, minvp, args.query_length,
 			(const mpz_t *)numbers, num_outputs, results);
 #endif
 
 #if DEBUG_RESULTS
+#ifdef CU_CODE
+	//TODO: convert from uint* representation back to gmp
+#endif
 	dump_results(num_outputs, (const mpz_t *)results);
 #endif
 

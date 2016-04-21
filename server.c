@@ -20,6 +20,8 @@
 #define DUMPFILE "dump"
 #endif
 
+#ifdef CU_CODE
+#else
 #ifdef LLIMPL
 static void low_level_work_kernel(const mp_limb_t *prime, mp_size_t numlen,
 		size_t minvp, size_t inplen, const mp_limb_t * const * inp,
@@ -88,10 +90,17 @@ static void naive_impl(const mpz_t prime, size_t minvp,
 }
 
 #endif
+#endif
 
-void server(size_t dbsize, const number_t prime, size_t minvp,
-		size_t inplen, const number_t * const inp,
-		size_t outlen, number_t *out)
+#ifdef CU_CODE
+void server(size_t dbsize, const uint *prime, size_t minvp,
+		size_t inplen, const uint ** const inp,
+		size_t outlen, uint **out)
+#else
+void server(size_t dbsize, const mpz_t prime, size_t minvp,
+		size_t inplen, const mpz_t * const inp,
+		size_t outlen, mpz_t *out)
+#endif
 {
 	double total_time, time_per_mul, time_per_round, mmps;
 	struct timeval st, en;
@@ -100,6 +109,13 @@ void server(size_t dbsize, const number_t prime, size_t minvp,
 
 #if CU_CODE
 	// TODO
+	(void)prime;
+	(void)inp;
+	(void)out;
+
+	(void)inplen;
+	(void)outlen;
+	(void)minvp;
 #else
 #ifdef LLIMPL
 	low_level_impl(prime, minvp, inplen, inp, outlen, out);
