@@ -8,6 +8,10 @@
 #include "globals.h"
 #include "server.h"
 
+#ifdef CU_CODE
+#include "integer-reg.h"
+#endif
+
 #ifndef DEBUG_RESULTS
 #define DEBUG_RESULTS 0
 #endif
@@ -92,6 +96,8 @@ int main(int argc, char **argv)
 {
 #ifdef CU_CODE
 	//TODO: vars for uint* representation
+	uint *_prime;
+	uint sz;
 #endif
 
 	mpz_t prime, *numbers, *results;
@@ -122,6 +128,9 @@ int main(int argc, char **argv)
 
 #ifdef CU_CODE
 	//TODO: convert to number_t (uint*) representation
+	sz = args.keysize / LIMB_SIZE;
+	_prime = calloc(sz, sizeof(_prime[0]));
+	convert1(prime, _prime, sz);
 #else
 	server(args.db_size, prime, minvp, args.query_length,
 			(const mpz_t *)numbers, num_outputs, results);
@@ -144,6 +153,10 @@ int main(int argc, char **argv)
 	mpz_clear(prime);
 	free(numbers);
 	free(results);
+
+#ifdef CU_CODE
+	free(_prime);
+#endif
 
 	exit(EXIT_SUCCESS);
 }
