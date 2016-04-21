@@ -89,19 +89,23 @@ static void naive_impl(const mpz_t prime, size_t minvp,
 
 #endif
 
-void server(size_t dbsize, const mpz_t prime, size_t minvp,
-		size_t inplen, const mpz_t * const inp,
-		size_t outlen, mpz_t *out)
+void server(size_t dbsize, const number_t prime, size_t minvp,
+		size_t inplen, const number_t * const inp,
+		size_t outlen, number_t *out)
 {
 	double total_time, time_per_mul, time_per_round, mmps;
 	struct timeval st, en;
 
 	gettimeofday(&st, NULL);
 
+#if CU_CODE
+	// TODO
+#else
 #ifdef LLIMPL
 	low_level_impl(prime, minvp, inplen, inp, outlen, out);
 #else
 	naive_impl(prime, minvp, inplen, inp, outlen, out);
+#endif
 #endif
 
 	gettimeofday(&en, NULL);

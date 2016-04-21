@@ -116,8 +116,12 @@ int main(int argc, char **argv)
 	printf("%d %lu %d\n", mp_bits_per_limb, mpz_size(prime), args.keysize / mp_bits_per_limb);
 	printf("%lu %lu %lu %lu\n", sizeof(int), sizeof(long), sizeof(long long), sizeof(void*));
 
+#ifdef CU_CODE
+	//TODO
+#else
 	server(args.db_size, prime, minvp, args.query_length,
 			(const mpz_t *)numbers, num_outputs, results);
+#endif
 
 #if DEBUG_RESULTS
 	dump_results(num_outputs, (const mpz_t *)results);
