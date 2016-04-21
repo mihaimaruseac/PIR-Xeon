@@ -13,6 +13,6 @@ void convert_to_1(mpz_t num, uint* repr, size_t sz);
 /**
  * Convert an array of mpz_t numbers into an array of uint*
  */
-void convert_to(mpz_t *nums, uint *repr, size_t sz);
+void convert_to(mpz_t *nums, size_t count, uint *repr, size_t sz);
 
 #endif
