@@ -10,6 +10,7 @@
 
 .PHONY: all clean
 
+CU_OBJS = integer-reg.o
 OBJS = globals.o client.o server.o
 TARGET = ./ko
 
@@ -39,7 +40,7 @@ endif
 # use CUDA-based hand-written code only if CUDA is either yes or 1
 ifneq (, $(filter $(CUDA), yes 1))
   CFLAGS := $(CFLAGS) -DCU_CODE
-  OBJS := $(OBJS) integer-reg.o
+  OBJS := $(OBJS) $(CU_OBJS)
 endif
 
 ifneq ($(MAKECMDGOALS), clean)
@@ -74,4 +75,4 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 
 clean:
-	$(RM) $(TARGET) $(OBJS)
+	$(RM) $(TARGET) $(OBJS) $(CU_OBJS)
