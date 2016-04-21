@@ -96,8 +96,8 @@ int main(int argc, char **argv)
 {
 #ifdef CU_CODE
 	//TODO: vars for uint* representation
-	uint *_prime;
-	uint sz;
+	uint *_prime, *_inp, *_out;
+	uint sz, isz, osz;
 #endif
 
 	mpz_t prime, *numbers, *results;
@@ -130,7 +130,11 @@ int main(int argc, char **argv)
 	//TODO: convert to number_t (uint*) representation
 	sz = args.keysize / LIMB_SIZE;
 	_prime = calloc(sz, sizeof(_prime[0]));
-	convert1(prime, _prime, sz);
+	convert_to_1(prime, _prime, sz);
+
+	isz = sz * args.query_length;
+	_inp = calloc(isz, sizeof(_inp[0]));
+	convert_to(numbers, _inp, isz);
 #else
 	server(args.db_size, prime, minvp, args.query_length,
 			(const mpz_t *)numbers, num_outputs, results);
@@ -156,6 +160,7 @@ int main(int argc, char **argv)
 
 #ifdef CU_CODE
 	free(_prime);
+	free(_inp);
 #endif
 
 	exit(EXIT_SUCCESS);
