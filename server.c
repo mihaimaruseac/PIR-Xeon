@@ -28,15 +28,46 @@
 /**
  * Converts each input number in inp to Montgomery representation, once.
  */
-static void montgomerry(uint *inp, size_t inplen, size_t sz, uint *prime)
+static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 {
-	size_t i, j, mj;
+	const size_t N = getN();
+	const size_t mj = 2 * N;
 	uint *p = inp;
+	size_t i, j;
 
-	mj = 2 * getN();
 	for (i = 0; i < inplen; i++) {
 		for (j = 0; j < mj; j++)
 			mul_mont(p, prime);
+		p += N;
+	}
+}
+
+static void multiply(uint *inp, size_t inplen,
+		uint *out, size_t outlen,
+		const uint *prime, size_t minvp)
+{
+	const size_t N = getN();
+	const size_t mj = 2 * N;
+	uint *p = out;
+	size_t i, j;
+
+	for (i = 0; i < outlen; i++) {
+		/* set accumulator/out to 1 */
+		p[0] = 1;
+
+		/* convert out to Montgomery representation
+		 * (Montgomery representation of 1 = beta^N `mod` prime).
+		 */
+		for (j = 0; j < mj; j++)
+			mul_mont(p, prime);
+
+		/* multiply into out */
+		// TODO
+
+		/* convert out back from Montgomery */
+		// TODO
+
+		p += N;
 	}
 }
 
@@ -151,22 +182,12 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 {
 	double total_time, time_per_mul, time_per_round, mmps;
 	struct timeval st, en;
-#if CU_CODE
-	size_t sz = getN();
-#endif
 
 	gettimeofday(&st, NULL);
 
 #if CU_CODE
-	montgomerry(inp, inplen, sz, prime);
-
-	// TODO
-	(void)out;
-
-	(void)outlen;
-	(void)minvp;
-	uint a[] = {1,2,3,4}; /* 316912650112397582603894390785 */
-	uint b[] = {5,6,7,8}; /* 633825300243241909290088267781 */
+	montgomerry(inp, inplen, prime);
+	multiply(inp, inplen, out, outlen, prime, minvp);
 #else
 #ifdef LLIMPL
 	low_level_impl(prime, minvp, inplen, inp, outlen, out);

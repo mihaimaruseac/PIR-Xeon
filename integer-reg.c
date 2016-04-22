@@ -109,20 +109,30 @@ static inline uint onediv(uint al, uint ah, uint p)
 
 /**
  * return {carryh, msb_var} `div` msb_p
- * Must have p with N limbs or carryh = 0 and var has at most same number of limbs as p.
+ * Both inputs should have N full limbs.
  */
-static inline uint divq(const uint var[N], const uint carryh, const uint p[N])
+static inline uint divq(const uint var[N], uint carryh, const uint p[N])
 {
-	uint i;
+	uint q, xt, xt1, yt, yt1, cl, ch, cl1, ch1;
 
-	/* determine limb to do division at */
-	for (i = N - 1; i > 0; i--) {
-		if (carryh || var[i] || p[i])
-			break;
-	}
+	xt = var[N-1];
+	xt1 = var[N-2];
+	yt = p[N-1];
+	yt1 = p[N-2];
 
-	assert(p[i] != 0);
-	return onediv(var[i], carryh, p[i]);
+	q = onediv(carryh, 0, yt);
+	carryh -= q * yt;
+	xt1 -= q * yt1;
+	q = onediv(xt, carryh, yt);
+
+	/* {ch1,ch,cl} = q*{yt,yt1} */
+	fullmul(q, yt1, &cl, &ch);
+	fullmul(q, yt, &cl1, &ch1);
+	ch1 = addin(&ch, cl1);
+
+	q -= (ch1 > carryh) || (ch > xt) || (cl > xt1);
+
+	return q;
 }
 
 /**
