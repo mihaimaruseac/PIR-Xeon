@@ -113,10 +113,9 @@ static inline uint onediv(uint al, uint ah, uint p)
  */
 static inline uint divq(const uint var[N], uint carryh, const uint p[N])
 {
-	uint q, xt, xt1, yt, yt1, cl, ch, cl1, ch1;
+	uint q, xt, yt, yt1, cl, ch, cl1, ch1;
 
 	xt = var[N-1];
-	xt1 = var[N-2];
 	yt = p[N-1];
 	yt1 = p[N-2];
 
@@ -130,7 +129,7 @@ static inline uint divq(const uint var[N], uint carryh, const uint p[N])
 	fullmul(q, yt, &cl1, &ch1);
 	ch1 = addin(&ch, cl1);
 
-	q -= (ch1 > carryh) || (ch > xt) || (cl > xt1);
+	q -= (ch1 > carryh) || (ch > xt);
 
 	return q;
 }
