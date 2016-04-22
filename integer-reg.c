@@ -122,7 +122,7 @@ static inline uint divq(const uint var[N], uint carryh, const uint p[N])
 
 	q = onediv(carryh, 0, yt);
 	carryh -= q * yt;
-	xt1 -= q * yt1;
+	xt -= q * yt1;
 	q = onediv(xt, carryh, yt);
 
 	/* {ch1,ch,cl} = q*{yt,yt1} */
