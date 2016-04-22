@@ -5,7 +5,7 @@ struct mpz_t;
 
 #ifdef CU_CODE
 void server(size_t dbsize, const uint *prime, size_t minvp,
-		size_t inplen, const uint * const inp,
+		size_t inplen, uint *inp,
 		size_t outlen, uint *out);
 #else
 void server(size_t dbsize, const mpz_t prime, size_t minvp,

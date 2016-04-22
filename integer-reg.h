@@ -6,6 +6,12 @@
 struct mpz_t;
 
 /**
+ * call setN only once!
+ */
+void setN(uint newN);
+uint getN();
+
+/**
  * Converts one single mpz_t number to uint* representation.
  */
 void convert_to_1(mpz_t num, uint* repr, size_t sz);
@@ -15,4 +21,9 @@ void convert_to_1(mpz_t num, uint* repr, size_t sz);
  */
 void convert_to(mpz_t *nums, size_t count, uint *repr, size_t sz);
 
+/**
+ * One step in the conversion to Montgomery representation (a*base^N `mod` p).
+ * Must call this function 2N times to achieve full representation.
+ */
+void mul_mont(uint a[], const uint p[]);
 #endif

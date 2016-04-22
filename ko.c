@@ -138,6 +138,8 @@ int main(int argc, char **argv)
 	osz = sz * num_outputs;
 	_out = calloc(osz, sizeof(_out[0]));
 
+	setN(sz);
+	printf("Numbers have %u limbs\n", getN());
 	server(args.db_size, _prime, minvp,
 			args.query_length, _inp,
 			num_outputs, _out);

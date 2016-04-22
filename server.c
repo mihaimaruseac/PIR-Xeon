@@ -12,6 +12,10 @@
 #include "globals.h"
 #include "server.h"
 
+#ifdef CU_CODE
+#include "integer-reg.h"
+#endif
+
 #ifndef BASE
 #define BASE 10
 #endif
@@ -21,6 +25,49 @@
 #endif
 
 #ifdef CU_CODE
+/**
+ * Converts each input number in inp to Montgomery representation, once.
+ */
+static void montgomerry(uint *inp, size_t inplen, size_t sz, uint *prime)
+{
+	size_t i, j, mj;
+	uint *p = inp;
+
+	mj = 2 * getN();
+	for (i = 0; i < inplen; i++) {
+		for (j = 0; j < mj; j++)
+			mul_mont(p, prime);
+	}
+}
+
+#if 0
+__global__ void multiply(const __restrict__ uint* Tinput, __restrict__ uint* Toutput)
+{
+	uint a[N];
+	uint b[N];
+	uint var1[N];
+	uint i;
+
+#pragma unroll
+	for (i = 0; i < N; i++)
+		b[i] = var1[i] = 0;
+	b[0] = var1[i] = 1;
+
+#pragma unroll
+	for (i = 0; i < 2*N; i++)
+		mulMont(b, constPrime);
+
+#pragma unroll
+	for (i = tid(); i < constSize; i += gridDim.x * blockDim.x) {
+		globalLoad(a, Tinput, tid(), constSize);
+		mulFull(b, a, constPrime, constMinvp);
+	}
+
+	mulFull(b, var1, constPrime, constMinvp);
+
+	globalStore(Toutput, b, tid(), gridDim.x * blockDim.x);
+}
+#endif
 #else
 #ifdef LLIMPL
 static void low_level_work_kernel(const mp_limb_t *prime, mp_size_t numlen,
@@ -94,7 +141,7 @@ static void naive_impl(const mpz_t prime, size_t minvp,
 
 #ifdef CU_CODE
 void server(size_t dbsize, const uint *prime, size_t minvp,
-		size_t inplen, const uint * const inp,
+		size_t inplen, uint *inp,
 		size_t outlen, uint *out)
 #else
 void server(size_t dbsize, const mpz_t prime, size_t minvp,
@@ -104,18 +151,22 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 {
 	double total_time, time_per_mul, time_per_round, mmps;
 	struct timeval st, en;
+#if CU_CODE
+	size_t sz = getN();
+#endif
 
 	gettimeofday(&st, NULL);
 
 #if CU_CODE
+	montgomerry(inp, inplen, sz, prime);
+
 	// TODO
-	(void)prime;
-	(void)inp;
 	(void)out;
 
-	(void)inplen;
 	(void)outlen;
 	(void)minvp;
+	uint a[] = {1,2,3,4}; /* 316912650112397582603894390785 */
+	uint b[] = {5,6,7,8}; /* 633825300243241909290088267781 */
 #else
 #ifdef LLIMPL
 	low_level_impl(prime, minvp, inplen, inp, outlen, out);
