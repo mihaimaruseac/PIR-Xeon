@@ -55,4 +55,9 @@ void mul_full(uint op2[], const uint op1[], const uint p[], uint minvp);
  * Should be faster than calling mul_full(op2, 1, prime, minvp).
  */
 void convert_from_mont(uint op2[], const uint p[], uint minvp);
+
+/**
+ * Debug purposes only.
+ */
+void display_num(const uint n[]);
 #endif
