@@ -3,6 +3,16 @@
 
 #define LIMB_SIZE 32
 
+#ifdef DEBUG_IREG
+#define debug_IR(msg, n)\
+	do{\
+		printf(msg);\
+		display_num(n);\
+	}while(0)
+#else
+#define debug_IR(msg, n)
+#endif
+
 struct mpz_t;
 
 /**

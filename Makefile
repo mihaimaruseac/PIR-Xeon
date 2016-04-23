@@ -6,6 +6,7 @@
 # - OMP			(def 1)		compile w/ OpenMP
 # - LLGNUMP		(def 0)		use low-level GNU MP routines
 # - CUDA		(def 0)		use CUDA code as baseline
+# - DEBUGIR		(def 0)		debug CUDA code, must have CUDA=1
 ##
 
 .PHONY: all clean
@@ -40,6 +41,12 @@ endif
 # use CUDA-based hand-written code only if CUDA is either yes or 1
 ifneq (, $(filter $(CUDA), yes 1))
   CFLAGS := $(CFLAGS) -DCU_CODE
+  OBJS := $(OBJS) $(CU_OBJS)
+endif
+
+# debug CUDA-based hand-written code only if DEBUGIR is either yes or 1
+ifneq (, $(filter $(DEBUGIR), yes 1))
+  CFLAGS := $(CFLAGS) -DDEBUG_IREG
   OBJS := $(OBJS) $(CU_OBJS)
 endif
 

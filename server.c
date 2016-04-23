@@ -49,7 +49,7 @@ static void multiply(uint *inp, size_t inplen,
 	const size_t N = getN();
 	size_t i, j;
 
-	printf("Computed once: "); display_num(m1);
+	debug_IR("Computed once: ", m1);
 
 	for (i = 0; i < outlen; i++) {
 		uint *p = &out[N * i];
@@ -60,9 +60,9 @@ static void multiply(uint *inp, size_t inplen,
 		/* multiply into out */
 		for (j = 0; j < inplen; j++) {
 			uint *q = &inp[N * j];
-			printf("to multiply: "); display_num(q);
+			debug_IR("to multiply: ", q);
 			mul_full(p, q, prime, minvp);
-			printf("now: "); display_num(p);
+			debug_IR("now: ", p);
 		}
 
 		/* convert out back from Montgomery */
@@ -74,8 +74,7 @@ static void multiply(uint *inp, size_t inplen,
 #else
 		convert_from_mont(p, prime, minvp);
 #endif
-		/* mul_full(p, 1, prime, minvp); */
-		printf("final result: "); display_num(p);
+		debug_IR("final result: ", p);
 	}
 
 	free(m1);

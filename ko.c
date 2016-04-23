@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 
 #if DEBUG_RESULTS
 #ifdef CU_CODE
-	printf("Result: "); display_num(_out);
+	debug_IR("Result: ", _out);
 	convert_to_mpz(results, num_outputs, _out, osz);
 #endif
 	dump_results(num_outputs, (const mpz_t *)results);
