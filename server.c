@@ -12,7 +12,7 @@
 #include "globals.h"
 #include "server.h"
 
-#ifdef CU_CODE
+#ifdef IR_CODE
 #include "integer-reg.h"
 #endif
 
@@ -24,7 +24,7 @@
 #define DUMPFILE "dump"
 #endif
 
-#ifdef CU_CODE
+#ifdef IR_CODE
 /**
  * Converts each input number in inp to Montgomery representation, once.
  */
@@ -148,7 +148,7 @@ static void naive_impl(const mpz_t prime, size_t minvp,
 #endif
 #endif
 
-#ifdef CU_CODE
+#ifdef IR_CODE
 void server(size_t dbsize, const uint *prime, size_t minvp,
 		size_t inplen, uint *inp,
 		size_t outlen, uint *out)
@@ -163,7 +163,7 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 
 	gettimeofday(&st, NULL);
 
-#if CU_CODE
+#if IR_CODE
 	montgomerry(inp, inplen, prime);
 	multiply(inp, inplen, out, outlen, prime, minvp);
 #else

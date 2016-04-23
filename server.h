@@ -3,7 +3,7 @@
 
 struct mpz_t;
 
-#ifdef CU_CODE
+#ifdef IR_CODE
 void server(size_t dbsize, const uint *prime, size_t minvp,
 		size_t inplen, uint *inp,
 		size_t outlen, uint *out);

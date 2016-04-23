@@ -8,7 +8,7 @@
 #include "globals.h"
 #include "server.h"
 
-#ifdef CU_CODE
+#ifdef IR_CODE
 #include "integer-reg.h"
 #endif
 
@@ -94,8 +94,7 @@ static void parse_arguments(int argc, char **argv)
 
 int main(int argc, char **argv)
 {
-#ifdef CU_CODE
-	//TODO: vars for uint* representation
+#ifdef IR_CODE
 	uint *_prime, *_inp, *_out;
 	uint sz, isz, osz;
 #endif
@@ -126,7 +125,7 @@ int main(int argc, char **argv)
 	printf("%d %lu %d\n", mp_bits_per_limb, mpz_size(prime), args.keysize / mp_bits_per_limb);
 	printf("%lu %lu %lu %lu\n", sizeof(int), sizeof(long), sizeof(long long), sizeof(void*));
 
-#ifdef CU_CODE
+#ifdef IR_CODE
 	sz = args.keysize / LIMB_SIZE;
 	_prime = calloc(sz, sizeof(_prime[0]));
 	convert_from_mpz_1(prime, _prime, sz);
@@ -149,7 +148,7 @@ int main(int argc, char **argv)
 #endif
 
 #if DEBUG_RESULTS
-#ifdef CU_CODE
+#ifdef IR_CODE
 	debug_IR("Result: ", _out);
 	convert_to_mpz(results, num_outputs, _out, osz);
 #endif
@@ -167,7 +166,7 @@ int main(int argc, char **argv)
 	free(numbers);
 	free(results);
 
-#ifdef CU_CODE
+#ifdef IR_CODE
 	free(_prime);
 	free(_inp);
 	free(_out);

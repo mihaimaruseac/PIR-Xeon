@@ -5,13 +5,13 @@
 # - DEBUG		(def 0)		compile for debug/amplxe
 # - OMP			(def 1)		compile w/ OpenMP
 # - LLGNUMP		(def 0)		use low-level GNU MP routines
-# - CUDA		(def 0)		use CUDA code as baseline
-# - DEBUGIR		(def 0)		debug CUDA code, must have CUDA=1
+# - IR			(def 0)		use IR code as baseline
+# - DEBUGIR		(def 0)		debug IR code, must have IR=1
 ##
 
 .PHONY: all clean
 
-CU_OBJS = integer-reg.o
+IR_OBJS = integer-reg.o
 OBJS = globals.o client.o server.o
 TARGET = ./ko
 
@@ -38,16 +38,16 @@ ifneq (, $(filter $(LLGNUMP), yes 1))
   CFLAGS := $(CFLAGS) -DLLIMPL
 endif
 
-# use CUDA-based hand-written code only if CUDA is either yes or 1
-ifneq (, $(filter $(CUDA), yes 1))
-  CFLAGS := $(CFLAGS) -DCU_CODE
-  OBJS := $(OBJS) $(CU_OBJS)
+# use IR-based hand-written code only if IR is either yes or 1
+ifneq (, $(filter $(IR), yes 1))
+  CFLAGS := $(CFLAGS) -DIR_CODE
+  OBJS := $(OBJS) $(IR_OBJS)
 endif
 
-# debug CUDA-based hand-written code only if DEBUGIR is either yes or 1
+# debug IR-based hand-written code only if DEBUGIR is either yes or 1
 ifneq (, $(filter $(DEBUGIR), yes 1))
   CFLAGS := $(CFLAGS) -DDEBUG_IREG
-  OBJS := $(OBJS) $(CU_OBJS)
+  OBJS := $(OBJS) $(IR_OBJS)
 endif
 
 ifneq ($(MAKECMDGOALS), clean)
@@ -82,4 +82,4 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 
 clean:
-	$(RM) $(TARGET) $(OBJS) $(CU_OBJS)
+	$(RM) $(TARGET) $(OBJS) $(IR_OBJS)
