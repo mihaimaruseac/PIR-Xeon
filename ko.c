@@ -129,11 +129,11 @@ int main(int argc, char **argv)
 #ifdef CU_CODE
 	sz = args.keysize / LIMB_SIZE;
 	_prime = calloc(sz, sizeof(_prime[0]));
-	convert_to_1(prime, _prime, sz);
+	convert_from_mpz_1(prime, _prime, sz);
 
 	isz = sz * args.query_length;
 	_inp = calloc(isz, sizeof(_inp[0]));
-	convert_to(numbers, args.query_length, _inp, isz);
+	convert_from_mpz(numbers, args.query_length, _inp, isz);
 
 	osz = sz * num_outputs;
 	_out = calloc(osz, sizeof(_out[0]));
@@ -150,7 +150,7 @@ int main(int argc, char **argv)
 
 #if DEBUG_RESULTS
 #ifdef CU_CODE
-	//TODO: convert from uint* representation back to gmp
+	convert_to_mpz(results, num_outputs, _out, osz);
 #endif
 	dump_results(num_outputs, (const mpz_t *)results);
 #endif

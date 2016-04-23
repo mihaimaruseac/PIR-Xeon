@@ -32,7 +32,7 @@ inline uint getN()
 
 /* conversions to/from mpz */
 
-static size_t convert_to_loop(const mp_limb_t *limbs, size_t nsz,
+static size_t convert_from_mpz_loop(const mp_limb_t *limbs, size_t nsz,
 		uint *repr, size_t ix, size_t sz)
 {
 	size_t i;
@@ -48,20 +48,40 @@ static size_t convert_to_loop(const mp_limb_t *limbs, size_t nsz,
 	return ix;
 }
 
-void convert_to_1(mpz_t num, uint* repr, size_t sz)
+void convert_from_mpz_1(mpz_t num, uint* repr, size_t sz)
 {
 	size_t nsz = mpz_size(num);
 	assert(nsz * CONVERSION_FACTOR <= sz);
-	nsz = convert_to_loop(mpz_limbs_read(num), nsz, repr, 0, sz);
+	nsz = convert_from_mpz_loop(mpz_limbs_read(num), nsz, repr, 0, sz);
 }
 
-void convert_to(mpz_t *nums, size_t count, uint *repr, size_t sz)
+void convert_from_mpz(mpz_t *nums, size_t count, uint *repr, size_t sz)
 {
 	size_t nsz = mpz_size(nums[0]), i, ix = 0;
 	assert(nsz * CONVERSION_FACTOR * count <= sz);
 	sz /= count; /* sz is now size of a single number */
 	for (i = 0; i < count; i++)
-		ix = convert_to_loop(mpz_limbs_read(nums[i]),nsz, repr,ix,sz);
+		ix = convert_from_mpz_loop(mpz_limbs_read(nums[i]), nsz,
+				repr, ix, sz);
+}
+
+void convert_to_mpz(mpz_t *nums, size_t count, uint *repr, size_t sz)
+{
+	size_t nsz, i, j, k = 0;
+
+	sz /= count; /* sz is now size of a single number */
+	nsz = sz / CONVERSION_FACTOR;
+
+	for (i = 0; i < count; i++) {
+		mp_limb_t *p = mpz_limbs_write(nums[i], nsz);
+		for (j = 0; j < nsz; j++) {
+			size_t a, b;
+			a = repr[k++];
+			b = repr[k++];
+			p[j] = b << LOGBASE | a;
+		}
+		mpz_limbs_finish(nums[i], nsz);
+	}
 }
 
 /* arithmetic */

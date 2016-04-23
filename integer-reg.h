@@ -14,12 +14,23 @@ uint getN();
 /**
  * Converts one single mpz_t number to uint* representation.
  */
-void convert_to_1(mpz_t num, uint* repr, size_t sz);
+void convert_from_mpz_1(mpz_t num, uint* repr, size_t sz);
 
 /**
  * Convert an array of mpz_t numbers into an array of uint*
+ *
+ * 	count:		number of mpz_t numbers
+ * 	sz:		total size of repr array
  */
-void convert_to(mpz_t *nums, size_t count, uint *repr, size_t sz);
+void convert_from_mpz(mpz_t *nums, size_t count, uint *repr, size_t sz);
+
+/**
+ * Convert to an array of mpz_t numbers from an array of uint*
+ *
+ * 	count:		number of mpz_t numbers
+ * 	sz:		total size of repr array
+ */
+void convert_to_mpz(mpz_t *nums, size_t count, uint *repr, size_t sz);
 
 /**
  * One step in the conversion to Montgomery representation (a*base^N `mod` p).

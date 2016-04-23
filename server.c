@@ -114,7 +114,7 @@ static void low_level_impl(const mpz_t prime, size_t minvp,
 
 	mp_limb_t** outputs = calloc(outlen, sizeof(outputs[0]));
 	for (i = 0; i < outlen; i++)
-		outputs[i] = mpz_limbs_modify(out[i], sz);
+		outputs[i] = mpz_limbs_write(out[i], sz);
 
 	low_level_work_kernel(mpz_limbs_read(prime), sz,
 			minvp, inplen, inputs,
