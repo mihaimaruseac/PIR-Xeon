@@ -140,7 +140,7 @@ static inline uint divq(const uint var[N], uint carryh, const uint p[N])
  * One step in converting to Montgomery representation (a*base^N `mod` p).
  * To achieve full representation, must call this function 2N times.
  */
-void mul_mont(uint a[N], const uint p[N])
+void convert_to_mont(uint a[N], const uint p[N])
 {
 	uint mulh, mull, q, sub, carryh, i;
 
@@ -218,6 +218,80 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 			carryh += addin(&v[j], uiml);
 			carryl = addin(&carryh, xiyih);
 			carryl += addin(&carryh, uimh);
+		}
+		v[N-1] = carryh;
+	}
+
+	/* compare v with p */
+	for (i = N - 1; i > 0 && !carryl; i--)
+		if (v[i] < p[i])
+			break;
+		else if (v[i] > p[i])
+			carryl = 1;
+
+	/* if v > p then set v to v - p */
+	if (carryl) {
+		carryl = 0;
+		for (i = 0; i < N; i++) {
+			carryh = v[i] - p[i] - carryl;
+			carryl = v[i] < carryh;
+			v[i] = carryh;
+		}
+	}
+
+	/* result in v, copy to op2 */
+	for (i = 0; i < N; i++)
+		op2[i] = v[i];
+}
+
+/**
+ * Convert from Montgomery.
+ * Should be faster than calling mul_full(op2, 1, prime, minvp).
+ */
+void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
+{
+
+	uint carryl, carryh, ui, uiml, uimh, i, j;
+	uint v[N];
+
+	for (i = 0; i < N; i++)
+		v[i] = 0;
+
+	/**
+	 * LSBpart: op1[i] would be 1
+	 */
+	/* Step 1 */
+	ui = v[0] + op2[0];
+	ui *= minvp;
+
+	/* Step 2 */
+	fullmul(ui, p[0], &uiml, &uimh);
+	carryh = add(&carryl, op2[0], uiml);
+	carryh += addin(&carryl, v[0]);
+	carryl = addin(&carryh, uimh);
+	for (j = 0; j < N - 1; j++) {
+		carryh = carryl + add(&v[j], carryh, v[j + 1]);
+		fullmul(ui, p[j + 1], &uiml, &uimh);
+		carryh += addin(&v[j], op2[j + 1]);
+		carryh += addin(&v[j], uiml);
+		carryl = addin(&carryh, uimh);
+	}
+	v[N-1] = carryh;
+
+	/**
+	 * Remaining part: op1[i] is 0
+	 * Strength reduction for both steps.
+	 */
+	ui = v[0] * minvp;
+	fullmul(ui, p[0], &uiml, &uimh);
+	carryh = addin(&uiml, v[0]);
+	carryl = addin(&carryh, uimh);
+	for (i = 1; i < N; i++) {
+		for (j = 0; j < N - 1; j++) {
+			carryh = carryl + add(&v[j], carryh, v[j + 1]);
+			fullmul(ui, p[j + 1], &uiml, &uimh);
+			carryh += addin(&v[j], uiml);
+			carryl = addin(&carryh, uimh);
 		}
 		v[N-1] = carryh;
 	}

@@ -25,11 +25,11 @@ void convert_to(mpz_t *nums, size_t count, uint *repr, size_t sz);
  * One step in the conversion to Montgomery representation (a*base^N `mod` p).
  * Must call this function 2N times to achieve full representation.
  */
-void mul_mont(uint a[], const uint p[]);
+void convert_to_mont(uint a[], const uint p[]);
 
 /**
- * Returns number 1 in Montgomery representation. Should be faster than
- * calling mul_mon.
+ * Returns number 1 in Montgomery representation.
+ * Should be faster than calling mul_mon(1, p).
  */
 uint* one_to_mont(const uint p[]);
 
@@ -38,4 +38,10 @@ uint* one_to_mont(const uint p[]);
  * minvp is used to keep result in Montgomery representation.
  */
 void mul_full(uint op2[], const uint op1[], const uint p[], uint minvp);
+
+/**
+ * Convert from Montgomery.
+ * Should be faster than calling mul_full(op2, 1, prime, minvp).
+ */
+void convert_from_mont(uint op2[], const uint p[], uint minvp);
 #endif

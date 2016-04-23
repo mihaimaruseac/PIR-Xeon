@@ -37,7 +37,7 @@ static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 	for (i = 0; i < inplen; i++) {
 		uint *p = &inp[N * i];
 		for (j = 0; j < mj; j++)
-			mul_mont(p, prime);
+			convert_to_mont(p, prime);
 	}
 }
 
@@ -66,41 +66,20 @@ static void multiply(uint *inp, size_t inplen,
 		}
 
 		/* convert out back from Montgomery */
+#if 0
+		uint *tmp = calloc(N, sizeof(tmp[0]));
+		tmp[0] = 1;
+		mul_full(p, tmp, prime, minvp);
+		free(tmp);
+#else
+		convert_from_mont(p, prime, minvp);
+#endif
+		/* mul_full(p, 1, prime, minvp); */
 		printf("final result: [%u, %u]\n", p[0], p[1]);
-		// TODO
 	}
 
 	free(m1);
 }
-
-#if 0
-__global__ void multiply(const __restrict__ uint* Tinput, __restrict__ uint* Toutput)
-{
-	uint a[N];
-	uint b[N];
-	uint var1[N];
-	uint i;
-
-#pragma unroll
-	for (i = 0; i < N; i++)
-		b[i] = var1[i] = 0;
-	b[0] = var1[i] = 1;
-
-#pragma unroll
-	for (i = 0; i < 2*N; i++)
-		mulMont(b, constPrime);
-
-#pragma unroll
-	for (i = tid(); i < constSize; i += gridDim.x * blockDim.x) {
-		globalLoad(a, Tinput, tid(), constSize);
-		mulFull(b, a, constPrime, constMinvp);
-	}
-
-	mulFull(b, var1, constPrime, constMinvp);
-
-	globalStore(Toutput, b, tid(), gridDim.x * blockDim.x);
-}
-#endif
 #else
 #ifdef LLIMPL
 static void low_level_work_kernel(const mp_limb_t *prime, mp_size_t numlen,
@@ -147,9 +126,7 @@ static void low_level_impl(const mpz_t prime, size_t minvp,
 	free(outputs);
 	free(inputs);
 }
-
 #else
-
 static void naive_impl(const mpz_t prime, size_t minvp,
 		size_t inplen, const mpz_t * const inp,
 		size_t outlen, mpz_t *out)
