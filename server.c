@@ -61,9 +61,8 @@ static void multiply(uint *inp, size_t inplen,
 		for (j = 0; j < inplen; j++) {
 			uint *q = &inp[N * j];
 			printf("to multiply: [%u, %u]\n", q[0], q[1]);
-			mul_full(p, q, p, minvp);
+			mul_full(p, q, prime, minvp);
 			printf("now: [%u, %u]\n", p[0], p[1]);
-			// TODO
 		}
 
 		/* convert out back from Montgomery */

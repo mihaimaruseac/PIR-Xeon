@@ -164,7 +164,7 @@ void mul_mont(uint a[N], const uint p[N])
 }
 
 /**
- * Returns base^N - p == Montgomery representation of 1.
+ * Returns (2^LOGBASE)^N - p == Montgomery representation of 1.
  * Assumes p has full bits.
  */
 uint* one_to_mont(const uint p[])
@@ -180,67 +180,66 @@ uint* one_to_mont(const uint p[])
 }
 
 /**
- * Full multiplication.
- * op2 = op1 * op2 `mod` p
- * Use minvp and Montgomerry multiplication.
- * TODO: describe, check, clear
- *
  * Montgomery multiply op1 and op2 modulo p, keeping result in op2.
- * minvp is used for Montgomery representation.
+ * minvp is used to keep result in Montgomery representation.
  */
 void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 {
 
 	uint carryl, carryh, ui, uiml, uimh, xiyl, xiyh, i, j, xiyil, xiyih;
-	uint var1[N];
+	uint v[N];
 
 	for (i = 0; i < N; i++)
-		var1[i] = 0;
+		v[i] = 0;
 
 	for (i = 0; i < N; i++) {
+		/** Step 1:
+		 *    ui <- (v[0] + op1[i] * op2[0]) * minvp `mod` (2^LOGBASE)
+		 */
 		fullmul(op1[i], op2[0], &xiyl, &xiyh);
-
-		// computes: ui = (a0+xi*yo)*invp mod 2^32;
-		ui = var1[0] + xiyl;
+		ui = v[0] + xiyl;
 		ui *= minvp;
 
+		/** Step 2:
+		 *    v <- (v + op1[i] * op2 + ui * p) / b
+		 *
+		 * Compute the sum, digit by digit in op2 and p
+		 */
 		fullmul(ui, p[0], &uiml, &uimh);
-
-		// computes: carryl = (var0 + xi*y0 + ui* prime0) / 2^32
-		// computes: carryh = (xi*y0)/ 2^32 + (ui* prime0)/ 2^32  + carryl
 		carryh = add(&carryl, xiyl, uiml);
-		carryh += addin(&carryl, var1[0]);
+		carryh += addin(&carryl, v[0]);
 		carryl = addin(&carryh, xiyh);
 		carryl += addin(&carryh, uimh);
-
 		for (j = 0; j < N - 1; j++) {
-			carryh = carryl + add(&var1[j], carryh, var1[j + 1]);
+			carryh = carryl + add(&v[j], carryh, v[j + 1]);
 			fullmul(op1[i], op2[j + 1], &xiyil, &xiyih);
 			fullmul(ui, p[j + 1], &uiml, &uimh);
-			carryh += addin(&var1[j], xiyil);
-			carryh += addin(&var1[j], uiml);
+			carryh += addin(&v[j], xiyil);
+			carryh += addin(&v[j], uiml);
 			carryl = addin(&carryh, xiyih);
 			carryl += addin(&carryh, uimh);
 		}
-
-		var1[N-1] = carryh;
+		v[N-1] = carryh;
 	}
 
+	/* compare v with p */
 	for (i = N - 1; i > 0 && !carryl; i--)
-		if (var1[i] < p[i])
+		if (v[i] < p[i])
 			break;
-		else if (var1[i] > p[i])
+		else if (v[i] > p[i])
 			carryl = 1;
 
+	/* if v > p then set v to v - p */
 	if (carryl) {
 		carryl = 0;
 		for (i = 0; i < N; i++) {
-			carryh = var1[i] - p[i] - carryl;
-			carryl = var1[i] < carryh;
-			var1[i] = carryh;
+			carryh = v[i] - p[i] - carryl;
+			carryl = v[i] < carryh;
+			v[i] = carryh;
 		}
 	}
 
+	/* result in v, copy to op2 */
 	for (i = 0; i < N; i++)
-		op2[i] = var1[i];
+		op2[i] = v[i];
 }
