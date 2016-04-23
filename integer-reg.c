@@ -9,6 +9,8 @@
 #define CONVERSION_FACTOR 2
 #define MASK 0xffffffff
 #define LOGBASE LIMB_SIZE
+#define HMASK 0xffff
+#define HLGBASE (LIMB_SIZE/2)
 
 /* assumes mpz uses 64-bit limbs */
 typedef unsigned long uint64;
@@ -166,7 +168,8 @@ void convert_to_mont(uint a[N], const uint p[N])
 
 	carryh = 0;
 	for (i = 0; i < N; i++) {
-		fullmul(65536, a[i], &mull, &mulh); // TODO: specialize?
+		mull = (a[i] & HMASK) << HLGBASE;
+		mulh = a[i] >> HLGBASE;
 		carryh = add(&a[i], mull, carryh);
 		carryh += mulh;
 	}
