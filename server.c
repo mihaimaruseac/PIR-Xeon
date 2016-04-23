@@ -46,10 +46,12 @@ static void multiply(uint *inp, size_t inplen,
 		uint *out, size_t outlen,
 		const uint *prime, size_t minvp)
 {
+	uint *p = out, *m1 = one_to_mont(prime);
 	const size_t N = getN();
 	const size_t mj = 2 * N;
-	uint *p = out;
 	size_t i, j;
+
+	printf("Computed once: {%u, %u}\n", m1[0], m1[1]);
 
 	for (i = 0; i < outlen; i++) {
 		/* set accumulator/out to 1 */
@@ -60,6 +62,7 @@ static void multiply(uint *inp, size_t inplen,
 		 */
 		for (j = 0; j < mj; j++)
 			mul_mont(p, prime);
+		printf("Computed here: {%u, %u}\n", p[0], p[1]);
 
 		/* multiply into out */
 		// TODO
@@ -69,6 +72,8 @@ static void multiply(uint *inp, size_t inplen,
 
 		p += N;
 	}
+
+	free(m1);
 }
 
 #if 0

@@ -26,4 +26,10 @@ void convert_to(mpz_t *nums, size_t count, uint *repr, size_t sz);
  * Must call this function 2N times to achieve full representation.
  */
 void mul_mont(uint a[], const uint p[]);
+
+/**
+ * Returns number 1 in Montgomery representation. Should be faster than
+ * calling mul_mon.
+ */
+uint* one_to_mont(const uint p[]);
 #endif

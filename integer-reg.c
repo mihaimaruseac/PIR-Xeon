@@ -113,9 +113,10 @@ static inline uint onediv(uint al, uint ah, uint p)
  */
 static inline uint divq(const uint var[N], uint carryh, const uint p[N])
 {
-	uint q, xt, yt, yt1, cl, ch, cl1, ch1;
+	uint q, xt, xt1, yt, yt1, cl, ch, cl1, ch1;
 
 	xt = var[N-1];
+	xt1 = var[N-2];
 	yt = p[N-1];
 	yt1 = p[N-2];
 
@@ -129,7 +130,7 @@ static inline uint divq(const uint var[N], uint carryh, const uint p[N])
 	fullmul(q, yt, &cl1, &ch1);
 	ch1 = addin(&ch, cl1);
 
-	q -= (ch1 > carryh) || (ch > xt);
+	q -= (ch1 > carryh) || (ch > xt) || (cl > xt1);
 
 	return q;
 }
@@ -204,10 +205,10 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
  */
 void mul_mont(uint a[N], const uint p[N])
 {
-	uint mulh, mull, q, sub, carryh;
+	uint mulh, mull, q, sub, carryh, i;
 
 	carryh = 0;
-	for (uint i = 0; i < N; i++) {
+	for (i = 0; i < N; i++) {
 		fullmul(65536, a[i], &mull, &mulh); // TODO: specialize?
 		carryh = add(&a[i], mull, carryh);
 		carryh += mulh;
@@ -216,11 +217,27 @@ void mul_mont(uint a[N], const uint p[N])
 	q = divq(a, carryh, p);
 
 	carryh = 0;
-	for (uint i = 0; i < N; i++) {
+	for (i = 0; i < N; i++) {
 		fullmul(q, p[i], &mull, &mulh);
 		sub = a[i] - mull - carryh;
 		carryh = a[i] < sub;
 		carryh += mulh;
 		a[i] = sub;
 	}
+}
+
+/**
+ * Returns base^N - p == Montgomery representation of 1.
+ * Assumes p has full bits.
+ */
+uint* one_to_mont(const uint p[])
+{
+	uint *ret = calloc(N, sizeof(ret[0]));
+	uint i;
+
+	for (i = 0; i < N; i++)
+		ret[i] = ~p[i];
+	ret[0]++;
+
+	return ret;
 }
