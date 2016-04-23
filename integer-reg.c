@@ -337,8 +337,10 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 
 void display_num(const uint n[])
 {
+	uint i;
+
 	printf("[%u", n[0]);
-	for (uint i = 1; i < N; i++)
+	for (i = 1; i < N; i++)
 		printf(", %u", n[i]);
 	printf("]\n");
 }
