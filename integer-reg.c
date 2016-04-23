@@ -136,10 +136,57 @@ static inline uint divq(const uint var[N], uint carryh, const uint p[N])
 }
 
 /**
+ * Returns a - q * p where q = floor((a<<16)/p)
+ * One step in converting to Montgomery representation (a*base^N `mod` p).
+ * To achieve full representation, must call this function 2N times.
+ */
+void mul_mont(uint a[N], const uint p[N])
+{
+	uint mulh, mull, q, sub, carryh, i;
+
+	carryh = 0;
+	for (i = 0; i < N; i++) {
+		fullmul(65536, a[i], &mull, &mulh); // TODO: specialize?
+		carryh = add(&a[i], mull, carryh);
+		carryh += mulh;
+	}
+
+	q = divq(a, carryh, p);
+
+	carryh = 0;
+	for (i = 0; i < N; i++) {
+		fullmul(q, p[i], &mull, &mulh);
+		sub = a[i] - mull - carryh;
+		carryh = a[i] < sub;
+		carryh += mulh;
+		a[i] = sub;
+	}
+}
+
+/**
+ * Returns base^N - p == Montgomery representation of 1.
+ * Assumes p has full bits.
+ */
+uint* one_to_mont(const uint p[])
+{
+	uint *ret = calloc(N, sizeof(ret[0]));
+	uint i;
+
+	for (i = 0; i < N; i++)
+		ret[i] = ~p[i];
+	ret[0]++;
+
+	return ret;
+}
+
+/**
  * Full multiplication.
  * op2 = op1 * op2 `mod` p
  * Use minvp and Montgomerry multiplication.
  * TODO: describe, check, clear
+ *
+ * Montgomery multiply op1 and op2 modulo p, keeping result in op2.
+ * minvp is used for Montgomery representation.
  */
 void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 {
@@ -196,48 +243,4 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 
 	for (i = 0; i < N; i++)
 		op2[i] = var1[i];
-}
-
-/**
- * Returns a - q * p where q = floor((a<<16)/p)
- * One step in converting to Montgomery representation (a*base^N `mod` p).
- * To achieve full representation, must call this function 2N times.
- */
-void mul_mont(uint a[N], const uint p[N])
-{
-	uint mulh, mull, q, sub, carryh, i;
-
-	carryh = 0;
-	for (i = 0; i < N; i++) {
-		fullmul(65536, a[i], &mull, &mulh); // TODO: specialize?
-		carryh = add(&a[i], mull, carryh);
-		carryh += mulh;
-	}
-
-	q = divq(a, carryh, p);
-
-	carryh = 0;
-	for (i = 0; i < N; i++) {
-		fullmul(q, p[i], &mull, &mulh);
-		sub = a[i] - mull - carryh;
-		carryh = a[i] < sub;
-		carryh += mulh;
-		a[i] = sub;
-	}
-}
-
-/**
- * Returns base^N - p == Montgomery representation of 1.
- * Assumes p has full bits.
- */
-uint* one_to_mont(const uint p[])
-{
-	uint *ret = calloc(N, sizeof(ret[0]));
-	uint i;
-
-	for (i = 0; i < N; i++)
-		ret[i] = ~p[i];
-	ret[0]++;
-
-	return ret;
 }

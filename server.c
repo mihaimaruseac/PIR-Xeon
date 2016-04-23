@@ -32,13 +32,12 @@ static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 {
 	const size_t N = getN();
 	const size_t mj = 2 * N;
-	uint *p = inp;
 	size_t i, j;
 
 	for (i = 0; i < inplen; i++) {
+		uint *p = &inp[N * i];
 		for (j = 0; j < mj; j++)
 			mul_mont(p, prime);
-		p += N;
 	}
 }
 
@@ -46,31 +45,30 @@ static void multiply(uint *inp, size_t inplen,
 		uint *out, size_t outlen,
 		const uint *prime, size_t minvp)
 {
-	uint *p = out, *m1 = one_to_mont(prime);
+	uint *m1 = one_to_mont(prime);
 	const size_t N = getN();
-	const size_t mj = 2 * N;
 	size_t i, j;
 
-	printf("Computed once: {%u, %u}\n", m1[0], m1[1]);
+	printf("Computed once: [%u, %u]\n", m1[0], m1[1]);
 
 	for (i = 0; i < outlen; i++) {
-		/* set accumulator/out to 1 */
-		p[0] = 1;
-
-		/* convert out to Montgomery representation
-		 * (Montgomery representation of 1 = beta^N `mod` prime).
-		 */
-		for (j = 0; j < mj; j++)
-			mul_mont(p, prime);
-		printf("Computed here: {%u, %u}\n", p[0], p[1]);
+		uint *p = &out[N * i];
+		/* set accumulator/out to Montgomery representation of 1 */
+		for (j = 0; j < N; j++)
+			p[j] = m1[j];
 
 		/* multiply into out */
-		// TODO
+		for (j = 0; j < inplen; j++) {
+			uint *q = &inp[N * j];
+			printf("to multiply: [%u, %u]\n", q[0], q[1]);
+			mul_full(p, q, p, minvp);
+			printf("now: [%u, %u]\n", p[0], p[1]);
+			// TODO
+		}
 
 		/* convert out back from Montgomery */
+		printf("final result: [%u, %u]\n", p[0], p[1]);
 		// TODO
-
-		p += N;
 	}
 
 	free(m1);

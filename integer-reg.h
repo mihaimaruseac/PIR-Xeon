@@ -32,4 +32,10 @@ void mul_mont(uint a[], const uint p[]);
  * calling mul_mon.
  */
 uint* one_to_mont(const uint p[]);
+
+/**
+ * Montgomery multiply op1 and op2 modulo p, keeping result in op2.
+ * minvp is used for Montgomery representation.
+ */
+void mul_full(uint op2[], const uint op1[], const uint p[], uint minvp);
 #endif
