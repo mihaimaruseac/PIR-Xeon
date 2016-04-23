@@ -66,14 +66,7 @@ static void multiply(uint *inp, size_t inplen,
 		}
 
 		/* convert out back from Montgomery */
-#if 1
-		uint *tmp = calloc(N, sizeof(tmp[0]));
-		tmp[0] = 1;
-		mul_full(p, tmp, prime, minvp);
-		free(tmp);
-#else
 		convert_from_mont(p, prime, minvp);
-#endif
 		debug_IR("final result: ", p);
 	}
 

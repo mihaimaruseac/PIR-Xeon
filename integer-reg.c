@@ -283,14 +283,9 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	/**
 	 * LSBpart: op1[i] would be 1
 	 */
-	/* Step 1 */
-	ui = v[0] + op2[0];
-	ui *= minvp;
-
-	/* Step 2 */
+	ui = op2[0] * minvp;
 	fullmul(ui, p[0], &uiml, &uimh);
 	carryh = add(&carryl, op2[0], uiml);
-	carryh += addin(&carryl, v[0]);
 	carryl = addin(&carryh, uimh);
 	for (j = 0; j < N - 1; j++) {
 		carryh = carryl + add(&v[j], carryh, v[j + 1]);
@@ -303,13 +298,12 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 
 	/**
 	 * Remaining part: op1[i] is 0
-	 * Strength reduction for both steps.
 	 */
-	ui = v[0] * minvp;
-	fullmul(ui, p[0], &uiml, &uimh);
-	carryh = addin(&uiml, v[0]);
-	carryl = addin(&carryh, uimh);
 	for (i = 1; i < N; i++) {
+		ui = v[0] * minvp;
+		fullmul(ui, p[0], &uiml, &uimh);
+		carryh = addin(&uiml, v[0]);
+		carryl = addin(&carryh, uimh);
 		for (j = 0; j < N - 1; j++) {
 			carryh = carryl + add(&v[j], carryh, v[j + 1]);
 			fullmul(ui, p[j + 1], &uiml, &uimh);
