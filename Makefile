@@ -22,7 +22,7 @@ CFLAGS += -Wall -Wextra
 
 # optimize only if DEBUG is either yes or 1
 ifneq (, $(filter $(DEBUG), yes 1))
-  CFLAGS := $(CFLAGS) -g -O0
+  CFLAGS := $(CFLAGS) -g -O3
 else
   CFLAGS := $(CFLAGS) -O3
 endif
