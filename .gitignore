@@ -1,9 +1,9 @@
 *.o
 ko
+test
 client.optrpt
 globals.optrpt
 ipo_out.optrpt
 ko.optrpt
 server.optrpt
-test
 integer-reg.optrpt
