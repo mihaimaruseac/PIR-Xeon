@@ -170,8 +170,7 @@ void convert_to_mont(uint a[N], const uint p[N])
 	for (i = 0; i < N; i++) {
 		mull = (a[i] & HMASK) << HLGBASE;
 		mulh = a[i] >> HLGBASE;
-		carryh = add(&a[i], mull, carryh);
-		carryh += mulh;
+		carryh = mulh + add(&a[i], mull, carryh);
 	}
 
 	q = divq(a, carryh, p);
@@ -180,8 +179,7 @@ void convert_to_mont(uint a[N], const uint p[N])
 	for (i = 0; i < N; i++) {
 		fullmul(q, p[i], &mull, &mulh);
 		sub = a[i] - mull - carryh;
-		carryh = a[i] < sub;
-		carryh += mulh;
+		carryh = mulh + (a[i] < sub);
 		a[i] = sub;
 	}
 }
