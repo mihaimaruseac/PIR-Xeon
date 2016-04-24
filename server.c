@@ -28,7 +28,11 @@
 /**
  * Converts each input number in inp to Montgomery representation, once.
  */
+#ifdef RESTRICT
+static void montgomerry(uint *restrict inp, size_t inplen, const uint *restrict prime)
+#else
 static void montgomerry(uint *inp, size_t inplen, const uint *prime)
+#endif
 {
 	const size_t N = getN();
 	const size_t mj = 2 * N;
@@ -41,9 +45,15 @@ static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 	}
 }
 
+#ifdef RESTRICT
+static void multiply(uint *restrict inp, size_t inplen,
+		uint *restrict out, size_t outlen,
+		const uint *restrict prime, size_t minvp)
+#else
 static void multiply(uint *inp, size_t inplen,
 		uint *out, size_t outlen,
 		const uint *prime, size_t minvp)
+#endif
 {
 	uint *m1 = one_to_mont(prime);
 	const size_t N = getN();

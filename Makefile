@@ -7,6 +7,7 @@
 # - LLGNUMP		(def 0)		use low-level GNU MP routines
 # - IR			(def 0)		use IR code as baseline
 # - DEBUGIR		(def 0)		debug IR code, must have IR=1
+# - RESTRICT		(def 0)		use restrict keyword, must be remote compilation, with IR=1
 ##
 
 .PHONY: all clean
@@ -67,6 +68,11 @@ ifneq ($(MAKECMDGOALS), clean)
     ifneq (, $(filter $(OMP), no 0))
     else
       CFLAGS := $(CFLAGS) -DHAVEOMP -fopenmp -qopt-report=4 -qopt-report-phase ipo
+    endif
+
+    # enable restrict keyword if RESTRICT is 1 or yes
+    ifneq (, $(filter $(RESTRICT), yes 1))
+      CFLAGS := $(CFLAGS) -DRESTRICT -restrict
     endif
 
     CFLAGS := $(CFLAGS) -I /usr/manual_install/gmp-6.0.0/build/$(COMPILE_TARGET)/include

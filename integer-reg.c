@@ -112,7 +112,11 @@ static inline uint add(uint *a, uint b, uint d)
  * {h_ab, l_ab} = a * b
  * Uses 64bits to store result then decomposes it to the two terms.
  */
+#ifdef RESTRICT
+static inline void fullmul(uint a, uint b, uint *restrict l_ab, uint *restrict h_ab)
+#else
 static inline void fullmul(uint a, uint b, uint *l_ab, uint *h_ab)
+#endif
 {
 	uint64 p = (uint64)a * (uint64)b;
 	*l_ab = p & MASK;
@@ -133,7 +137,11 @@ static inline uint onediv(uint al, uint ah, uint p)
  * return {carryh, msb_var} `div` msb_p
  * Both inputs should have N full limbs.
  */
+#ifdef RESTRICT
+static inline uint divq(const uint *restrict var, uint carryh, const uint *restrict p)
+#else
 static inline uint divq(const uint var[N], uint carryh, const uint p[N])
+#endif
 {
 	uint q, xt, xt1, yt, yt1, cl, ch, cl1, ch1;
 
@@ -162,7 +170,11 @@ static inline uint divq(const uint var[N], uint carryh, const uint p[N])
  * One step in converting to Montgomery representation (a*base^N `mod` p).
  * To achieve full representation, must call this function 2N times.
  */
+#ifdef RESTRICT
+void convert_to_mont(uint *restrict a, const uint *restrict p)
+#else
 void convert_to_mont(uint a[N], const uint p[N])
+#endif
 {
 	uint mulh, mull, q, sub, carryh, i;
 
@@ -204,7 +216,11 @@ uint* one_to_mont(const uint p[])
  * Montgomery multiply op1 and op2 modulo p, keeping result in op2.
  * minvp is used to keep result in Montgomery representation.
  */
+#ifdef RESTRICT
+void mul_full(uint *restrict op2, const uint *restrict op1, const uint *restrict p, uint minvp)
+#else
 void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
+#endif
 {
 
 	uint carryl, carryh, ui, uiml, uimh, xiyl, xiyh, i, j, xiyil, xiyih;
@@ -269,7 +285,11 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
  * Convert from Montgomery.
  * Should be faster than calling mul_full(op2, 1, prime, minvp).
  */
+#ifdef RESTRICT
+void convert_from_mont(uint *restrict op2, const uint *restrict p, uint minvp)
+#else
 void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
+#endif
 {
 
 	uint carryl, carryh, ui, uiml, uimh, i, j;
