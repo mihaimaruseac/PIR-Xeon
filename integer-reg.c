@@ -45,6 +45,7 @@ static size_t convert_from_mpz_loop(const mp_limb_t *limbs, size_t nsz,
 	uint64 elm;
 
 	sz /= CONVERSION_FACTOR; /* CONVERSION_FACTOR writes per loop */
+	/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop to parallelize the loop. */
 	for (i = 0; i < sz; i++) {
 		elm = i < nsz ? limbs[i] : 0;
 		repr[ix++] = elm & MASK;
@@ -80,6 +81,7 @@ void convert_to_mpz(mpz_t *nums, size_t count, uint *repr, size_t sz)
 
 	for (i = 0; i < count; i++) {
 		mp_limb_t *p = mpz_limbs_write(nums[i], nsz);
+		/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop to parallelize the loop. */
 		for (j = 0; j < nsz; j++) {
 			size_t a, b;
 			a = repr[k++];
@@ -219,6 +221,7 @@ uint* one_to_mont(const uint p[])
 #ifdef ALIGN
 #pragma vector aligned
 #endif
+	/* TODO: Insert a "#pragma loop count min(1024)" statement right before the loop to parallelize the loop. */
 	for (i = 0; i < N; i++)
 		ret[i] = ~p[i];
 	ret[0]++;
@@ -230,6 +233,7 @@ uint* one_to_mont(const uint p[])
  * Montgomery multiply op1 and op2 modulo p, keeping result in op2.
  * minvp is used to keep result in Montgomery representation.
  */
+/* TODO: Add "__declspec(const)" to the declaration of routine "mul_full" in order to parallelize the loop at line 84. Alternatively, adding "__attribute__((concurrency_safe(profitable)))" achieves a similar effect.  */
 #ifdef RESTRICT
 void mul_full(uint *restrict op2, const uint *restrict op1, const uint *restrict p, uint minvp)
 #else
@@ -240,7 +244,7 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 	uint carryl, carryh, ui, uiml, uimh, xiyl, xiyh, i, j, xiyil, xiyih;
 #ifdef ALIGN
 	uint v[N] __attribute__((aligned(ALIGNBOUNDARY)));
-	__assume_aligned(&v[0], 64);
+	__assume_aligned(&v[0], ALIGNBOUNDARY);
 #else
 	uint v[N];
 #endif
@@ -335,10 +339,11 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 	}
 
 #ifdef ALIGN
-	__assume_aligned(&op2[0], 64);
+	__assume_aligned(&op2[0], ALIGNBOUNDARY);
 #pragma vector aligned
 #endif
 	/* result in v, copy to op2 */
+	/* TODO: Insert a "#pragma loop count min(512)" statement right before the loop to parallelize the loop. */
 	for (i = 0; i < N; i++)
 		op2[i] = v[i];
 }
@@ -357,7 +362,7 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	uint carryl, carryh, ui, uiml, uimh, i, j;
 #ifdef ALIGN
 	uint v[N] __attribute__((aligned(ALIGNBOUNDARY)));
-	__assume_aligned(&v[0], 64);
+	__assume_aligned(&v[0], ALIGNBOUNDARY);
 #else
 	uint v[N];
 #endif
@@ -424,10 +429,11 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	}
 
 #ifdef ALIGN
-	__assume_aligned(&op2[0], 64);
+	__assume_aligned(&op2[0], ALIGNBOUNDARY);
 #pragma vector aligned
 #endif
 	/* result in v, copy to op2 */
+	/* TODO: Insert a "#pragma loop count min(512)" statement right before the loop to parallelize the loop. */
 	for (i = 0; i < N; i++)
 		op2[i] = v[i];
 }

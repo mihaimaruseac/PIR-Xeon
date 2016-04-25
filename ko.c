@@ -138,9 +138,9 @@ int main(int argc, char **argv)
 	_prime = (uint*)_mm_malloc(sz * sizeof(_prime[0]), ALIGNBOUNDARY);
 	_inp = (uint*)_mm_malloc(isz * sizeof(_inp[0]), ALIGNBOUNDARY);
 	_out = (uint*)_mm_malloc(osz * sizeof(_out[0]), ALIGNBOUNDARY);
-	__assume_aligned(&_prime[0], 64);
-	__assume_aligned(&_inp[0], 64);
-	__assume_aligned(&_out[0], 64);
+	__assume_aligned(&_prime[0], ALIGNBOUNDARY);
+	__assume_aligned(&_inp[0], ALIGNBOUNDARY);
+	__assume_aligned(&_out[0], ALIGNBOUNDARY);
 	memset(_prime, 0, sz * sizeof(_prime[0]));
 	memset(_inp, 0, isz * sizeof(_inp[0]));
 	memset(_out, 0, osz * sizeof(_out[0]));

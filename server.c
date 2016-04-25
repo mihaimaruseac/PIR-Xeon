@@ -42,6 +42,7 @@ static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 	const size_t mj = 2 * N;
 	size_t i, j;
 
+	/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop at line 45 to parallelize the loop. */
 	for (i = 0; i < inplen; i++) {
 		uint *p = &inp[N * i];
 		for (j = 0; j < mj; j++)
@@ -60,6 +61,9 @@ static void multiply(uint *inp, size_t inplen,
 #endif
 {
 	uint *m1 = one_to_mont(prime);
+#ifdef ALIGN
+	__assume_aligned(m1, ALIGNBOUNDARY);
+#endif
 	const size_t N = getN();
 	size_t i, j;
 
@@ -68,10 +72,16 @@ static void multiply(uint *inp, size_t inplen,
 	for (i = 0; i < outlen; i++) {
 		uint *p = &out[N * i];
 		/* set accumulator/out to Montgomery representation of 1 */
+#ifdef ALIGN
+		__assume_aligned(p, ALIGNBOUNDARY);
+		__assume_aligned(m1, ALIGNBOUNDARY);
+#pragma vector aligned
+#endif
 		for (j = 0; j < N; j++)
 			p[j] = m1[j];
 
 		/* multiply into out */
+		/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop at line 84 to parallelize the loop. */
 		for (j = 0; j < inplen; j++) {
 			uint *q = &inp[N * j];
 			debug_IR("to multiply: ", q);
