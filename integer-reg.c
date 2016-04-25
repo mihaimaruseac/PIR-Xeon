@@ -184,6 +184,7 @@ void convert_to_mont(uint a[N], const uint p[N])
 	uint mulh, mull, q, sub, carryh, i;
 
 	carryh = 0;
+	/* TODO: carryh prevents vectorization */
 	for (i = 0; i < N; i++) {
 		mull = (a[i] & HMASK) << HLGBASE;
 		mulh = a[i] >> HLGBASE;
@@ -193,6 +194,7 @@ void convert_to_mont(uint a[N], const uint p[N])
 	q = divq(a, carryh, p);
 
 	carryh = 0;
+	/* TODO: carryh prevents vectorization */
 	for (i = 0; i < N; i++) {
 		fullmul(q, p[i], &mull, &mulh);
 		sub = a[i] - mull - carryh;
@@ -208,7 +210,7 @@ void convert_to_mont(uint a[N], const uint p[N])
 uint* one_to_mont(const uint p[])
 {
 #ifdef ALIGN
-	uint *ret = (uint*)_mm_malloc(N * sizeof(ret[0]), 16); // TODO: align value: 16 on xeon, 64 on __MIC__
+	uint *ret = (uint*)_mm_malloc(N * sizeof(ret[0]), ALIGNBOUNDARY);
 #else
 	uint *ret = calloc(N, sizeof(ret[0]));
 #endif
@@ -236,14 +238,23 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 {
 
 	uint carryl, carryh, ui, uiml, uimh, xiyl, xiyh, i, j, xiyil, xiyih;
+#ifdef ALIGN
+	uint v[N] __attribute__((aligned(ALIGNBOUNDARY)));
+	__assume_aligned(&v[0], 64);
+#else
 	uint v[N];
+#endif
 #ifdef STRRED
 	uint a, b;
 #endif
 
+#ifdef ALIGN
+#pragma vector aligned
+#endif
 	for (i = 0; i < N; i++)
 		v[i] = 0;
 
+	/* TODO: v prevents vectorization */
 	for (i = 0; i < N; i++) {
 		/** Step 1:
 		 *    ui <- (v[0] + op1[i] * op2[0]) * minvp `mod` (2^LOGBASE)
@@ -263,8 +274,9 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		carryl = addin(&carryh, xiyh);
 		carryl += addin(&carryh, uimh);
 #ifdef STRRED
-#if 0
+#if 1
 		b = 0; /* b = j - 1, a will get to v[j-1] */
+		/* TODO: carryl prevents vectorization */
 		for (j = 1; j < N; j++) {
 			carryh = carryl + add(&a, carryh, v[j]);
 			fullmul(op1[i], op2[j], &xiyil, &xiyih);
@@ -276,6 +288,7 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 			v[b++] = a;
 		}
 #else
+		/* TODO: carryl prevents vectorization */
 		for (j = 0; j < N - 1; j++) {
 			carryh = carryl + add(&a, carryh, v[j + 1]);
 			fullmul(op1[i], op2[j + 1], &xiyil, &xiyih);
@@ -288,6 +301,7 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		}
 #endif
 #else
+		/* TODO: v, carryl prevent vectorization */
 		for (j = 0; j < N - 1; j++) {
 			carryh = carryl + add(&v[j], carryh, v[j + 1]);
 			fullmul(op1[i], op2[j + 1], &xiyil, &xiyih);
@@ -312,6 +326,7 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 	/* if v > p then set v to v - p */
 	if (carryl) {
 		carryl = 0;
+		/* TODO: carryl prevents vectorization */
 		for (i = 0; i < N; i++) {
 			carryh = v[i] - p[i] - carryl;
 			carryl = v[i] < carryh;
@@ -319,6 +334,10 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		}
 	}
 
+#ifdef ALIGN
+	__assume_aligned(&op2[0], 64);
+#pragma vector aligned
+#endif
 	/* result in v, copy to op2 */
 	for (i = 0; i < N; i++)
 		op2[i] = v[i];
@@ -336,8 +355,16 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 {
 
 	uint carryl, carryh, ui, uiml, uimh, i, j;
+#ifdef ALIGN
+	uint v[N] __attribute__((aligned(ALIGNBOUNDARY)));
+	__assume_aligned(&v[0], 64);
+#else
 	uint v[N];
+#endif
 
+#ifdef ALIGN
+#pragma vector aligned
+#endif
 	for (i = 0; i < N; i++)
 		v[i] = 0;
 
@@ -348,6 +375,7 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	fullmul(ui, p[0], &uiml, &uimh);
 	carryh = add(&carryl, op2[0], uiml);
 	carryl = addin(&carryh, uimh);
+	/* TODO: v, carryl prevent vectorization */
 	for (j = 0; j < N - 1; j++) {
 		carryh = carryl + add(&v[j], carryh, v[j + 1]);
 		fullmul(ui, p[j + 1], &uiml, &uimh);
@@ -360,11 +388,13 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	/**
 	 * Remaining part: op1[i] is 0
 	 */
+	/* TODO: v prevents vectorization */
 	for (i = 1; i < N; i++) {
 		ui = v[0] * minvp;
 		fullmul(ui, p[0], &uiml, &uimh);
 		carryh = addin(&uiml, v[0]);
 		carryl = addin(&carryh, uimh);
+		/* TODO: v, carryl prevent vectorization */
 		for (j = 0; j < N - 1; j++) {
 			carryh = carryl + add(&v[j], carryh, v[j + 1]);
 			fullmul(ui, p[j + 1], &uiml, &uimh);
@@ -375,6 +405,7 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	}
 
 	/* compare v with p */
+	/* TODO: linearize as while (v[i] != p[i]).., remove branch */
 	for (i = N - 1; i > 0 && !carryl; i--)
 		if (v[i] < p[i])
 			break;
@@ -384,6 +415,7 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	/* if v > p then set v to v - p */
 	if (carryl) {
 		carryl = 0;
+		/* TODO: carryl prevents vectorization */
 		for (i = 0; i < N; i++) {
 			carryh = v[i] - p[i] - carryl;
 			carryl = v[i] < carryh;
@@ -391,6 +423,10 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 		}
 	}
 
+#ifdef ALIGN
+	__assume_aligned(&op2[0], 64);
+#pragma vector aligned
+#endif
 	/* result in v, copy to op2 */
 	for (i = 0; i < N; i++)
 		op2[i] = v[i];

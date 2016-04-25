@@ -92,7 +92,7 @@ ifneq ($(MAKECMDGOALS), clean)
 
     # align data structures
     ifneq (, $(filter $(ALIGN), yes 1))
-      CFLAGS := $(CFLAGS) -DALIGN
+      CFLAGS := $(CFLAGS) -DALIGN -DALIGNBOUNDARY=64
     endif
 
     # skip OpenMP if OMP is no or 0

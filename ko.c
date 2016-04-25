@@ -4,6 +4,10 @@
 
 #include <gmp.h>
 
+#ifdef ALIGN
+#include <malloc.h>
+#endif
+
 #include "client.h"
 #include "globals.h"
 #include "server.h"
@@ -127,15 +131,27 @@ int main(int argc, char **argv)
 
 #ifdef IR_CODE
 	sz = args.keysize / LIMB_SIZE;
-	_prime = calloc(sz, sizeof(_prime[0]));
-	convert_from_mpz_1(prime, _prime, sz);
-
 	isz = sz * args.query_length;
-	_inp = calloc(isz, sizeof(_inp[0]));
-	convert_from_mpz(numbers, args.query_length, _inp, isz);
-
 	osz = sz * num_outputs;
+
+#ifdef ALIGN
+	_prime = (uint*)_mm_malloc(sz * sizeof(_prime[0]), ALIGNBOUNDARY);
+	_inp = (uint*)_mm_malloc(isz * sizeof(_inp[0]), ALIGNBOUNDARY);
+	_out = (uint*)_mm_malloc(osz * sizeof(_out[0]), ALIGNBOUNDARY);
+	__assume_aligned(&_prime[0], 64);
+	__assume_aligned(&_inp[0], 64);
+	__assume_aligned(&_out[0], 64);
+	memset(_prime, 0, sz * sizeof(_prime[0]));
+	memset(_inp, 0, isz * sizeof(_inp[0]));
+	memset(_out, 0, osz * sizeof(_out[0]));
+#else
+	_prime = calloc(sz, sizeof(_prime[0]));
+	_inp = calloc(isz, sizeof(_inp[0]));
 	_out = calloc(osz, sizeof(_out[0]));
+#endif
+
+	convert_from_mpz_1(prime, _prime, sz);
+	convert_from_mpz(numbers, args.query_length, _inp, isz);
 
 	setN(sz);
 	printf("Numbers have %u limbs\n", getN());
@@ -167,9 +183,15 @@ int main(int argc, char **argv)
 	free(results);
 
 #ifdef IR_CODE
+#ifdef ALIGN
+	_mm_free(_prime);
+	_mm_free(_inp);
+	_mm_free(_out);
+#else
 	free(_prime);
 	free(_inp);
 	free(_out);
+#endif
 #endif
 
 	exit(EXIT_SUCCESS);
