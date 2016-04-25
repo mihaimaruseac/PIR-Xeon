@@ -112,6 +112,7 @@ static inline uint add(uint *a, uint b, uint d)
  * {h_ab, l_ab} = a * b
  * Uses 64bits to store result then decomposes it to the two terms.
  */
+/* TODO: declare vector version for SIMD? */
 #ifdef RESTRICT
 static inline void fullmul(uint a, uint b, uint *restrict l_ab, uint *restrict h_ab)
 #else
@@ -289,6 +290,7 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		v[N-1] = carryh;
 	}
 
+	/* TODO: linearize as while (v[i] != p[i]).., remove branch */
 	/* compare v with p */
 	for (i = N - 1; i > 0 && !carryl; i--)
 		if (v[i] < p[i])
