@@ -225,6 +225,9 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 
 	uint carryl, carryh, ui, uiml, uimh, xiyl, xiyh, i, j, xiyil, xiyih;
 	uint v[N];
+#ifdef STRRED
+	uint a, b;
+#endif
 
 	for (i = 0; i < N; i++)
 		v[i] = 0;
@@ -247,6 +250,32 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		carryh += addin(&carryl, v[0]);
 		carryl = addin(&carryh, xiyh);
 		carryl += addin(&carryh, uimh);
+#ifdef STRRED
+#if 0
+		b = 0; /* b = j - 1, a will get to v[j-1] */
+		for (j = 1; j < N; j++) {
+			carryh = carryl + add(&a, carryh, v[j]);
+			fullmul(op1[i], op2[j], &xiyil, &xiyih);
+			fullmul(ui, p[j], &uiml, &uimh);
+			carryh += addin(&a, xiyil);
+			carryh += addin(&a, uiml);
+			carryl = addin(&carryh, xiyih);
+			carryl += addin(&carryh, uimh);
+			v[b++] = a;
+		}
+#else
+		for (j = 0; j < N - 1; j++) {
+			carryh = carryl + add(&a, carryh, v[j + 1]);
+			fullmul(op1[i], op2[j + 1], &xiyil, &xiyih);
+			fullmul(ui, p[j + 1], &uiml, &uimh);
+			carryh += addin(&a, xiyil);
+			carryh += addin(&a, uiml);
+			carryl = addin(&carryh, xiyih);
+			carryl += addin(&carryh, uimh);
+			v[j] = a;
+		}
+#endif
+#else
 		for (j = 0; j < N - 1; j++) {
 			carryh = carryl + add(&v[j], carryh, v[j + 1]);
 			fullmul(op1[i], op2[j + 1], &xiyil, &xiyih);
@@ -256,6 +285,7 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 			carryl = addin(&carryh, xiyih);
 			carryl += addin(&carryh, uimh);
 		}
+#endif
 		v[N-1] = carryh;
 	}
 

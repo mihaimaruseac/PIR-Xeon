@@ -8,6 +8,7 @@
 # - IR			(def 0)		use IR code as baseline
 # - DEBUGIR		(def 0)		debug IR code, must have IR=1
 # - RESTRICT		(def 0)		use restrict keyword, must be remote compilation, with IR=1
+# - STRRED		(def 0)		use strength reduction, IR=1
 ##
 
 .PHONY: all clean
@@ -48,7 +49,11 @@ endif
 # debug IR-based hand-written code only if DEBUGIR is either yes or 1
 ifneq (, $(filter $(DEBUGIR), yes 1))
   CFLAGS := $(CFLAGS) -DDEBUG_IREG
-  OBJS := $(OBJS) $(IR_OBJS)
+endif
+
+# strength reduction in IR code if STRRED is yes or 1
+ifneq (, $(filter $(STRRED), yes 1))
+  CFLAGS := $(CFLAGS) -DSTRRED
 endif
 
 ifneq ($(MAKECMDGOALS), clean)
