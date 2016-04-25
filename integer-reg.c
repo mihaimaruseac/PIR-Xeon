@@ -6,6 +6,10 @@
 
 #include "integer-reg.h"
 
+#ifdef ALIGN
+#include <malloc.h>
+#endif
+
 #define CONVERSION_FACTOR 2
 #define MASK 0xffffffff
 #define LOGBASE LIMB_SIZE
@@ -203,9 +207,16 @@ void convert_to_mont(uint a[N], const uint p[N])
  */
 uint* one_to_mont(const uint p[])
 {
+#ifdef ALIGN
+	uint *ret = (uint*)_mm_malloc(N * sizeof(ret[0]), 16); // TODO: align value: 16 on xeon, 64 on __MIC__
+#else
 	uint *ret = calloc(N, sizeof(ret[0]));
+#endif
 	uint i;
 
+#ifdef ALIGN
+#pragma vector aligned
+#endif
 	for (i = 0; i < N; i++)
 		ret[i] = ~p[i];
 	ret[0]++;

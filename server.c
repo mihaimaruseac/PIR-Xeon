@@ -16,6 +16,10 @@
 #include "integer-reg.h"
 #endif
 
+#ifdef ALIGN
+#include <malloc.h>
+#endif
+
 #ifndef BASE
 #define BASE 10
 #endif
@@ -80,7 +84,11 @@ static void multiply(uint *inp, size_t inplen,
 		debug_IR("final result: ", p);
 	}
 
+#ifdef ALIGN
+	_mm_free(m1);
+#else
 	free(m1);
+#endif
 }
 #else
 #ifdef LLIMPL

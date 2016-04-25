@@ -10,6 +10,7 @@
 # - RESTRICT		(def 0)		use restrict keyword, must be remote compilation, with IR=1
 # - STRRED		(def 0)		use strength reduction, IR=1
 # - GUIDE		(def 0)		offer guides to speedup, must be remote, doesn't result in binary file
+# - ALIGN		(def 0)		align data structures
 ##
 
 .PHONY: all clean
@@ -84,6 +85,11 @@ ifneq ($(MAKECMDGOALS), clean)
     # more debug info if DEBUG is yes or 1
     ifneq (, $(filter $(DEBUG), yes 1))
       CFLAGS := $(CFLAGS) -debug full
+    endif
+
+    # align data structures
+    ifneq (, $(filter $(ALIGN), yes 1))
+      CFLAGS := $(CFLAGS) -DALIGN
     endif
 
     # skip OpenMP if OMP is no or 0
