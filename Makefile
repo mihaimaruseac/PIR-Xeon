@@ -71,6 +71,9 @@ ifneq ($(MAKECMDGOALS), clean)
     CC = icc
     LD = icc
 
+    # disable assertions
+    CFLAGS := $(CFLAGS) -DNDEBUG
+
     # more optimizations
     CFLAGS := $(CFLAGS) -unroll-aggressive
 
