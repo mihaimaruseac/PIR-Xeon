@@ -9,6 +9,7 @@
 # - DEBUGIR		(def 0)		debug IR code, must have IR=1
 # - RESTRICT		(def 0)		use restrict keyword, must be remote compilation, with IR=1
 # - STRRED		(def 0)		use strength reduction, IR=1
+# - GUIDE		(def 0)		offer guides to speedup, must be remote, doesn't result in binary file
 ##
 
 .PHONY: all clean
@@ -22,7 +23,7 @@ COMPILE_TARGETS = local $(REMOTE_TARGETS)
 
 CFLAGS += -Wall -Wextra
 
-# optimize only if DEBUG is either yes or 1
+# debug info only if DEBUG is either yes or 1
 ifneq (, $(filter $(DEBUG), yes 1))
   CFLAGS := $(CFLAGS) -g -O3
 else
@@ -69,10 +70,26 @@ ifneq ($(MAKECMDGOALS), clean)
     CC = icc
     LD = icc
 
+    # more optimizations
+    CFLAGS := $(CFLAGS) -unroll-aggressive
+
+    # always show compile diagnostics
+    CFLAGS := $(CFLAGS) -diag-enable=all -qopt-report=5 -qopt-report-phase=all
+
+    # enable guidance keyword if GUIDE is 1 or yes
+    ifneq (, $(filter $(GUIDE), yes 1))
+      CFLAGS := $(CFLAGS) -guide -parallel -qopenmp
+    endif
+
+    # more debug info if DEBUG is yes or 1
+    ifneq (, $(filter $(DEBUG), yes 1))
+      CFLAGS := $(CFLAGS) -debug full
+    endif
+
     # skip OpenMP if OMP is no or 0
     ifneq (, $(filter $(OMP), no 0))
     else
-      CFLAGS := $(CFLAGS) -DHAVEOMP -fopenmp -qopt-report=4 -qopt-report-phase ipo
+      CFLAGS := $(CFLAGS) -DHAVEOMP -qopenmp
     endif
 
     # enable restrict keyword if RESTRICT is 1 or yes
@@ -82,6 +99,7 @@ ifneq ($(MAKECMDGOALS), clean)
 
     CFLAGS := $(CFLAGS) -I /usr/manual_install/gmp-6.0.0/build/$(COMPILE_TARGET)/include
     LDLIBS = /usr/manual_install/gmp-6.0.0/build/$(COMPILE_TARGET)/lib/libgmp.a
+
     ifeq ($(COMPILE_TARGET), mic)
       CFLAGS := $(CFLAGS) -mmic
     endif
