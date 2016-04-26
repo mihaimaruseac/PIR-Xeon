@@ -1,9 +1,5 @@
 *.o
 ko
 test
-client.optrpt
-globals.optrpt
-ipo_out.optrpt
-ko.optrpt
-server.optrpt
-integer-reg.optrpt
+*.optrpt
+loop_prof_*
