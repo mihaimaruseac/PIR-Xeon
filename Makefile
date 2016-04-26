@@ -10,6 +10,7 @@
 # - RESTRICT		(def 0)		use restrict keyword, must be remote compilation, with IR=1
 # - STRRED		(def 0)		use strength reduction, IR=1
 # - GUIDE		(def 0)		offer guides to speedup, must be remote, doesn't result in binary file
+# - PROFILE		(def 0)		profile code, runs extremely slow
 # - ALIGN		(def 0)		align data structures
 ##
 
@@ -80,9 +81,14 @@ ifneq ($(MAKECMDGOALS), clean)
     # always show compile diagnostics
     CFLAGS := $(CFLAGS) -diag-enable=all -qopt-report=5 -qopt-report-phase=all
 
-    # enable guidance keyword if GUIDE is 1 or yes
+    # enable guidance if GUIDE is 1 or yes
     ifneq (, $(filter $(GUIDE), yes 1))
       CFLAGS := $(CFLAGS) -guide -parallel -qopenmp
+    endif
+
+    # enable profile if PROFILE is 1 or yes
+    ifneq (, $(filter $(PROFILE), yes 1))
+      CFLAGS := $(CFLAGS) -profile-functions -profile-loops=all -profile-loops-report=2
     endif
 
     # more debug info if DEBUG is yes or 1
