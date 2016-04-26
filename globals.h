@@ -2,7 +2,7 @@
 #define GLOBALS_H__
 
 struct gmp_randstate_t;
-struct timeval;
+struct timespec;
 
 /**
  * Initializes the random number generator of GMP library. To be called in
@@ -10,6 +10,6 @@ struct timeval;
  */
 void initialize_random(gmp_randstate_t state, int bytes);
 
-double time_diff(const struct timeval *st, const struct timeval *en);
+double time_diff(const struct timespec *st, const struct timespec *en);
 
 #endif

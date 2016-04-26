@@ -1,7 +1,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include <gmp.h>
 
@@ -186,9 +186,9 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 #endif
 {
 	double total_time, time_per_mul, time_per_round, mmps;
-	struct timeval st, en;
+	struct timespec st, en;
 
-	gettimeofday(&st, NULL);
+	clock_gettime(CLOCK_MONOTONIC, &st);
 
 #if IR_CODE
 	montgomerry(inp, inplen, prime);
@@ -201,7 +201,7 @@ void server(size_t dbsize, const mpz_t prime, size_t minvp,
 #endif
 #endif
 
-	gettimeofday(&en, NULL);
+	clock_gettime(CLOCK_MONOTONIC, &en);
 
 	total_time = 1000 * time_diff(&st, &en); /* in ms */
 	time_per_mul = total_time / dbsize;

@@ -24,6 +24,7 @@ REMOTE_TARGETS = xeon mic
 COMPILE_TARGETS = local $(REMOTE_TARGETS)
 
 CFLAGS += -Wall -Wextra
+LDFLAGS += -lrt
 
 # debug info only if DEBUG is either yes or 1
 ifneq (, $(filter $(DEBUG), yes 1))
@@ -67,7 +68,7 @@ ifneq ($(MAKECMDGOALS), clean)
 
   ifeq ($(filter $(COMPILE_TARGET), $(REMOTE_TARGETS)),)
     CC = gcc
-    LDFLAGS = -lgmp
+    LDFLAGS += -lgmp
   else
     CC = icc
     LD = icc

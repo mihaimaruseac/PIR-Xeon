@@ -1,7 +1,7 @@
 #include <gmp.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include "globals.h"
 
@@ -40,11 +40,11 @@ void initialize_random(gmp_randstate_t state, int bytes)
 	free(buff);
 }
 
-#define MICROSECONDS 1000000.0
-double time_diff(const struct timeval *st, const struct timeval *en)
+#define  NANOSECONDS 1000000000.0
+double time_diff(const struct timespec *st, const struct timespec *en)
 {
-	double t1 = st->tv_sec + st->tv_usec / MICROSECONDS;
-	double t2 = en->tv_sec + en->tv_usec / MICROSECONDS;
+	double t1 = st->tv_sec + st->tv_nsec / NANOSECONDS;
+	double t2 = en->tv_sec + en->tv_nsec / NANOSECONDS;
 	return t2 - t1;
 }
 #undef MICROSECONDS
