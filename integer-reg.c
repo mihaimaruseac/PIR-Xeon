@@ -45,7 +45,6 @@ static size_t convert_from_mpz_loop(const mp_limb_t *limbs, size_t nsz,
 	uint64 elm;
 
 	sz /= CONVERSION_FACTOR; /* CONVERSION_FACTOR writes per loop */
-	/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop to parallelize the loop. */
 	for (i = 0; i < sz; i++) {
 		elm = i < nsz ? limbs[i] : 0;
 		repr[ix++] = elm & MASK;
@@ -81,7 +80,6 @@ void convert_to_mpz(mpz_t *nums, size_t count, uint *repr, size_t sz)
 
 	for (i = 0; i < count; i++) {
 		mp_limb_t *p = mpz_limbs_write(nums[i], nsz);
-		/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop to parallelize the loop. */
 		for (j = 0; j < nsz; j++) {
 			size_t a, b;
 			a = repr[k++];

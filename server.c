@@ -42,6 +42,9 @@ static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 	const size_t mj = 2 * N;
 	size_t i, j;
 
+#ifdef HAVEOMP
+#pragma omp parallel for
+#endif
 	/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop at line 45 to parallelize the loop. */
 	for (i = 0; i < inplen; i++) {
 		uint *p = &inp[N * i];
@@ -69,6 +72,9 @@ static void multiply(uint *inp, size_t inplen,
 
 	debug_IR("Computed once: ", m1);
 
+#ifdef HAVEOMP
+#pragma omp parallel for
+#endif
 	for (i = 0; i < outlen; i++) {
 		uint *p = &out[N * i];
 		/* set accumulator/out to Montgomery representation of 1 */
