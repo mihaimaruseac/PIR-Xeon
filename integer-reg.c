@@ -183,6 +183,19 @@ void convert_to_mont(uint a[N], const uint p[N])
 	uint mulh, mull, q, sub, carryh, i;
 
 	carryh = 0;
+	/**
+	 * Description of the loop (in case there's a vectorization
+	 * algorithm):
+	 *
+	 *  - carryh and vector a of N elements, all 32 bits
+	 *  - represented as 16 bits halves
+	 *  - 'a', '1-9' = contents that is getting shifted
+	 *  - '0' = those bits are 0
+	 *
+	 *      car.. <--------a---------->
+	 *  in: [0.0] [a.1|2.3|4.5|6.7|8.9] (carryh and then a, a has N elements, each 32 bits, represented here in 16bits halves)
+	 * out: [0.a] [1.2|3.4|5.6|7.8|9.0] (carryh and then a, a has N elements, each 32 bits, represented here in 16bits halves)
+	 */
 	/* TODO: carryh prevents vectorization */
 	for (i = 0; i < N; i++) {
 		mull = (a[i] & HMASK) << HLGBASE;
