@@ -43,7 +43,7 @@ static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 	size_t i, j;
 
 #ifdef HAVEOMP
-#pragma omp parallel for
+#pragma omp parallel for private(j)
 #endif
 	for (i = 0; i < inplen; i++) {
 		uint *p = &inp[N * i];
@@ -75,7 +75,7 @@ static void multiply(uint *inp, size_t inplen,
 	debug_IR("Computed once: ", m1);
 
 #ifdef HAVEOMP
-#pragma omp parallel for
+#pragma omp parallel for private(j)
 #endif
 	for (i = 0; i < outlen; i++) {
 		uint *p = &out[N * i];
