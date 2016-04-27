@@ -11,6 +11,7 @@
 # - GUIDE		(def 0)		offer guides to speedup, must be remote, doesn't result in binary file
 # - PROFILE		(def 0)		profile code, runs extremely slow
 # - ALIGN		(def 0)		align data structures
+# - VECTSEARCH		(def 0)		vectorized search in comparison
 ##
 
 .PHONY: all clean
@@ -94,6 +95,11 @@ ifneq ($(MAKECMDGOALS), clean)
     # align data structures
     ifneq (, $(filter $(ALIGN), yes 1))
       CFLAGS := $(CFLAGS) -DALIGN -DALIGNBOUNDARY=64
+    endif
+
+    # vectorized search
+    ifneq (, $(filter $(VECTSEARCH), yes 1))
+      CFLAGS := $(CFLAGS) -DVECTSEARCH
     endif
 
     # skip OpenMP if OMP is no or 0

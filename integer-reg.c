@@ -301,13 +301,34 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		v[N-1] = carryh;
 	}
 
-	/* TODO: linearize as while (v[i] != p[i]).., remove branch */
 	/* compare v with p */
+#ifdef VECTSEARCH
+#ifdef ALIGN
+	uint above[N] __attribute__((aligned(ALIGNBOUNDARY)));
+	uint below[N] __attribute__((aligned(ALIGNBOUNDARY)));
+	__assume_aligned(&above[0], ALIGNBOUNDARY);
+	__assume_aligned(&below[0], ALIGNBOUNDARY);
+	__assume_aligned(&p[0], ALIGNBOUNDARY);
+#else
+	uint above[N], below[N];
+#endif
+	uint ai = 0, bi = 0;
+
+#pragma simd reduction (max:ai,bi)
+	for (i = 0; i < N; i++) {
+		above[i] = i * (v[i] > p[i]);
+		below[i] = i * (v[i] < p[i]);
+		if (ai < above[i]) ai = above[i];
+		if (bi < below[i]) bi = below[i];
+	}
+	carryl = carryl | (ai > bi);
+#else
 	for (i = N - 1; i > 0 && !carryl; i--)
 		if (v[i] < p[i])
 			break;
 		else if (v[i] > p[i])
 			carryl = 1;
+#endif
 
 	/* if v > p then set v to v - p */
 	if (carryl) {
@@ -391,12 +412,33 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	}
 
 	/* compare v with p */
-	/* TODO: linearize as while (v[i] != p[i]).., remove branch */
+#ifdef VECTSEARCH
+#ifdef ALIGN
+	uint above[N] __attribute__((aligned(ALIGNBOUNDARY)));
+	uint below[N] __attribute__((aligned(ALIGNBOUNDARY)));
+	__assume_aligned(&above[0], ALIGNBOUNDARY);
+	__assume_aligned(&below[0], ALIGNBOUNDARY);
+	__assume_aligned(&p[0], ALIGNBOUNDARY);
+#else
+	uint above[N], below[N];
+#endif
+	uint ai = 0, bi = 0;
+
+#pragma simd reduction (max:ai,bi)
+	for (i = 0; i < N; i++) {
+		above[i] = i * (v[i] > p[i]);
+		below[i] = i * (v[i] < p[i]);
+		if (ai < above[i]) ai = above[i];
+		if (bi < below[i]) bi = below[i];
+	}
+	carryl = carryl | (ai > bi);
+#else
 	for (i = N - 1; i > 0 && !carryl; i--)
 		if (v[i] < p[i])
 			break;
 		else if (v[i] > p[i])
 			carryl = 1;
+#endif
 
 	/* if v > p then set v to v - p */
 	if (carryl) {
