@@ -207,6 +207,9 @@ void convert_to_mont(uint a[N], const uint p[N])
 
 	carryh = 0;
 	/* TODO: carryh prevents vectorization */
+	/**
+	 * a = a - qp
+	 */
 	for (i = 0; i < N; i++) {
 		fullmul(q, p[i], &mull, &mulh);
 		sub = a[i] - mull - carryh;
