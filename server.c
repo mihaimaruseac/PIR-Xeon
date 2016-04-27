@@ -45,9 +45,11 @@ static void montgomerry(uint *inp, size_t inplen, const uint *prime)
 #ifdef HAVEOMP
 #pragma omp parallel for
 #endif
-	/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop at line 45 to parallelize the loop. */
 	for (i = 0; i < inplen; i++) {
 		uint *p = &inp[N * i];
+#ifdef UNROLL
+#pragma unroll
+#endif
 		for (j = 0; j < mj; j++)
 			convert_to_mont(p, prime);
 	}
@@ -87,7 +89,9 @@ static void multiply(uint *inp, size_t inplen,
 			p[j] = m1[j];
 
 		/* multiply into out */
-		/* TODO: Insert a "#pragma loop count min(128)" statement right before the loop at line 84 to parallelize the loop. */
+#ifdef UNROLL
+#pragma unroll
+#endif
 		for (j = 0; j < inplen; j++) {
 			uint *q = &inp[N * j];
 			debug_IR("to multiply: ", q);
