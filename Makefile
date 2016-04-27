@@ -4,6 +4,7 @@
 # - DEBUGDUMP		(def 0)		check results
 # - DEBUG		(def 0)		compile for debug/amplxe
 # - OMP			(def 1)		compile w/ OpenMP
+# - SCHEDULE		(def static)	OpenMP schedule, must be static,dynamic or guided
 # - LLGNUMP		(def 0)		use low-level GNU MP routines
 # - IR			(def 0)		use IR code as baseline
 # - DEBUGIR		(def 0)		debug IR code, must have IR=1
@@ -118,6 +119,11 @@ ifneq ($(MAKECMDGOALS), clean)
     ifneq (, $(filter $(OMP), no 0))
     else
       CFLAGS := $(CFLAGS) -DHAVEOMP -qopenmp
+      ifneq (, $(SCHEDULE))
+        CFLAGS += -DOMPSCHED=$(SCHEDULE)
+      else
+        CFLAGS += -DOMPSCHED=static
+      endif
     endif
 
     # enable restrict keyword if RESTRICT is 1 or yes
