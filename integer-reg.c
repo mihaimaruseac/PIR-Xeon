@@ -234,7 +234,6 @@ uint* one_to_mont(const uint p[])
 #ifdef ALIGN
 #pragma vector aligned
 #endif
-	/* TODO: Insert a "#pragma loop count min(1024)" statement right before the loop to parallelize the loop. */
 	for (i = 0; i < N; i++)
 		ret[i] = ~p[i];
 	ret[0]++;
