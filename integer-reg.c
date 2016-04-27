@@ -197,6 +197,9 @@ void convert_to_mont(uint a[N], const uint p[N])
 	 * out: [0.a] [1.2|3.4|5.6|7.8|9.0] (carryh and then a, a has N elements, each 32 bits, represented here in 16bits halves)
 	 */
 	/* TODO: carryh prevents vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 	for (i = 0; i < N; i++) {
 		mull = (a[i] & HMASK) << HLGBASE;
 		mulh = a[i] >> HLGBASE;
@@ -206,10 +209,13 @@ void convert_to_mont(uint a[N], const uint p[N])
 	q = divq(a, carryh, p);
 
 	carryh = 0;
-	/* TODO: carryh prevents vectorization */
 	/**
 	 * a = a - qp
 	 */
+	/* TODO: carryh prevents vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 	for (i = 0; i < N; i++) {
 		fullmul(q, p[i], &mull, &mulh);
 		sub = a[i] - mull - carryh;
@@ -270,6 +276,9 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		v[i] = 0;
 
 	/* TODO: v prevents vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 	for (i = 0; i < N; i++) {
 		/** Step 1:
 		 *    ui <- (v[0] + op1[i] * op2[0]) * minvp `mod` (2^LOGBASE)
@@ -289,6 +298,9 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		carryl = addin(&carryh, xiyh);
 		carryl += addin(&carryh, uimh);
 		/* TODO: v, carryl prevent vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 		for (j = 0; j < N - 1; j++) {
 			carryh = carryl + add(&v[j], carryh, v[j + 1]);
 			fullmul(op1[i], op2[j + 1], &xiyil, &xiyih);
@@ -334,6 +346,9 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 	if (carryl) {
 		carryl = 0;
 		/* TODO: carryl prevents vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 		for (i = 0; i < N; i++) {
 			carryh = v[i] - p[i] - carryl;
 			carryl = v[i] < carryh;
@@ -383,6 +398,9 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	carryh = add(&carryl, op2[0], uiml);
 	carryl = addin(&carryh, uimh);
 	/* TODO: v, carryl prevent vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 	for (j = 0; j < N - 1; j++) {
 		carryh = carryl + add(&v[j], carryh, v[j + 1]);
 		fullmul(ui, p[j + 1], &uiml, &uimh);
@@ -396,12 +414,18 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	 * Remaining part: op1[i] is 0
 	 */
 	/* TODO: v prevents vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 	for (i = 1; i < N; i++) {
 		ui = v[0] * minvp;
 		fullmul(ui, p[0], &uiml, &uimh);
 		carryh = addin(&uiml, v[0]);
 		carryl = addin(&carryh, uimh);
 		/* TODO: v, carryl prevent vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 		for (j = 0; j < N - 1; j++) {
 			carryh = carryl + add(&v[j], carryh, v[j + 1]);
 			fullmul(ui, p[j + 1], &uiml, &uimh);
@@ -444,6 +468,9 @@ void convert_from_mont(uint op2[N], const uint p[N], uint minvp)
 	if (carryl) {
 		carryl = 0;
 		/* TODO: carryl prevents vectorization */
+#ifdef UNROLL
+#pragma unroll
+#endif
 		for (i = 0; i < N; i++) {
 			carryh = v[i] - p[i] - carryl;
 			carryl = v[i] < carryh;

@@ -12,6 +12,7 @@
 # - PROFILE		(def 0)		profile code, runs extremely slow
 # - ALIGN		(def 0)		align data structures
 # - VECTSEARCH		(def 0)		vectorized search in comparison
+# - UNROLL		(def 0)		unroll serial loops
 ##
 
 .PHONY: all clean
@@ -100,6 +101,11 @@ ifneq ($(MAKECMDGOALS), clean)
     # vectorized search
     ifneq (, $(filter $(VECTSEARCH), yes 1))
       CFLAGS := $(CFLAGS) -DVECTSEARCH
+    endif
+
+    # unroll unparallelized loops
+    ifneq (, $(filter $(UNROLL), yes 1))
+      CFLAGS := $(CFLAGS) -DUNROLL
     endif
 
     # skip OpenMP if OMP is no or 0
