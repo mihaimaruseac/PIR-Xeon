@@ -116,7 +116,6 @@ static inline uint add(uint *a, uint b, uint d)
  * {h_ab, l_ab} = a * b
  * Uses 64bits to store result then decomposes it to the two terms.
  */
-/* TODO: declare vector version for SIMD? */
 #ifdef RESTRICT
 static inline void fullmul(uint a, uint b, uint *restrict l_ab, uint *restrict h_ab)
 #else
