@@ -94,7 +94,7 @@ ifneq ($(MAKECMDGOALS), clean)
 
     # more debug info if DEBUG is yes or 1
     ifneq (, $(filter $(DEBUG), yes 1))
-      CFLAGS := $(CFLAGS) -debug full
+      CFLAGS := $(CFLAGS) -debug full -parallel-source-info=2
     endif
 
     # align data structures
