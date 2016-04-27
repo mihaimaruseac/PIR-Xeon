@@ -320,12 +320,11 @@ void mul_full(uint op2[N], const uint op1[N], const uint p[N], uint minvp)
 		}
 	}
 
+	/* result in v, copy to op2 */
 #ifdef ALIGN
 	__assume_aligned(&op2[0], ALIGNBOUNDARY);
 #pragma vector aligned
 #endif
-	/* result in v, copy to op2 */
-	/* TODO: Insert a "#pragma loop count min(512)" statement right before the loop to parallelize the loop. */
 	for (i = 0; i < N; i++)
 		op2[i] = v[i];
 }
