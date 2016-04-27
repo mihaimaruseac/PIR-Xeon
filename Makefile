@@ -13,6 +13,7 @@
 # - ALIGN		(def 0)		align data structures
 # - VECTSEARCH		(def 0)		vectorized search in comparison
 # - UNROLL		(def 0)		unroll serial loops
+# - IPO			(def 0)		interprocedural optimization
 ##
 
 .PHONY: all clean
@@ -77,6 +78,11 @@ ifneq ($(MAKECMDGOALS), clean)
 
     # always show compile diagnostics
     CFLAGS := $(CFLAGS) -diag-enable=all -qopt-report=5 -qopt-report-phase=all
+
+    # enable IPO if IPO is 1 or yes
+    ifneq (, $(filter $(IPO), yes 1))
+      CFLAGS := $(CFLAGS) -ipo
+    endif
 
     # enable guidance if GUIDE is 1 or yes
     ifneq (, $(filter $(GUIDE), yes 1))
