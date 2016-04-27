@@ -245,7 +245,6 @@ uint* one_to_mont(const uint p[])
  * Montgomery multiply op1 and op2 modulo p, keeping result in op2.
  * minvp is used to keep result in Montgomery representation.
  */
-/* TODO: Add "__declspec(const)" to the declaration of routine "mul_full" in order to parallelize the loop at line 84. Alternatively, adding "__attribute__((concurrency_safe(profitable)))" achieves a similar effect.  */
 #ifdef RESTRICT
 void mul_full(uint *restrict op2, const uint *restrict op1, const uint *restrict p, uint minvp)
 #else
